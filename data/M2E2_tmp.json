@@ -1,0 +1,1093 @@
+[
+    {
+        "sentence_id": "VOA_EN_NW_2016.04.19.3291980_0",
+        "sentence_start": 0,
+        "sentence_end": 268,
+        "sentence": "New Boycotts, Court Ruling Over Controversial LGBT Issues-WASHINGTON \u2014\u00a0-The battle over lesbian, gay and transgender rights continued Tuesday when a U.S. Appeals Court ruled a Virginia school's banning of a transgender student from the boy's bathroom is discriminatory",
+        "words": [
+            "New",
+            "Boycotts",
+            ",",
+            "Court",
+            "Ruling",
+            "Over",
+            "Controversial",
+            "LGBT",
+            "Issues",
+            "WASHINGTON",
+            "\u2014",
+            "The",
+            "battle",
+            "over",
+            "lesbian",
+            ",",
+            "gay",
+            "and",
+            "transgender",
+            "rights",
+            "continued",
+            "Tuesday",
+            "when",
+            "a",
+            "U.S.",
+            "Appeals",
+            "Court",
+            "ruled",
+            "a",
+            "Virginia",
+            "school",
+            "'s",
+            "banning",
+            "of",
+            "a",
+            "transgender",
+            "student",
+            "from",
+            "the",
+            "boy",
+            "'s",
+            "bathroom",
+            "is",
+            "discriminatory",
+            "."
+        ],
+        "index": [
+            [
+                "0",
+                "2"
+            ],
+            [
+                "4",
+                "11"
+            ],
+            [
+                "12",
+                "12"
+            ],
+            [
+                "14",
+                "18"
+            ],
+            [
+                "20",
+                "25"
+            ],
+            [
+                "27",
+                "30"
+            ],
+            [
+                "32",
+                "44"
+            ],
+            [
+                "46",
+                "49"
+            ],
+            [
+                "51",
+                "56"
+            ],
+            [
+                "58",
+                "67"
+            ],
+            [
+                "69",
+                "69"
+            ],
+            [
+                "72",
+                "74"
+            ],
+            [
+                "76",
+                "81"
+            ],
+            [
+                "83",
+                "86"
+            ],
+            [
+                "88",
+                "94"
+            ],
+            [
+                "95",
+                "95"
+            ],
+            [
+                "97",
+                "99"
+            ],
+            [
+                "101",
+                "103"
+            ],
+            [
+                "105",
+                "115"
+            ],
+            [
+                "117",
+                "122"
+            ],
+            [
+                "124",
+                "132"
+            ],
+            [
+                "134",
+                "140"
+            ],
+            [
+                "142",
+                "145"
+            ],
+            [
+                "147",
+                "147"
+            ],
+            [
+                "149",
+                "152"
+            ],
+            [
+                "154",
+                "160"
+            ],
+            [
+                "162",
+                "166"
+            ],
+            [
+                "168",
+                "172"
+            ],
+            [
+                "174",
+                "174"
+            ],
+            [
+                "176",
+                "183"
+            ],
+            [
+                "185",
+                "190"
+            ],
+            [
+                "191",
+                "192"
+            ],
+            [
+                "194",
+                "200"
+            ],
+            [
+                "202",
+                "203"
+            ],
+            [
+                "205",
+                "205"
+            ],
+            [
+                "207",
+                "217"
+            ],
+            [
+                "219",
+                "225"
+            ],
+            [
+                "227",
+                "230"
+            ],
+            [
+                "232",
+                "234"
+            ],
+            [
+                "236",
+                "238"
+            ],
+            [
+                "239",
+                "240"
+            ],
+            [
+                "242",
+                "249"
+            ],
+            [
+                "251",
+                "252"
+            ],
+            [
+                "254",
+                "267"
+            ],
+            [
+                "268",
+                "268"
+            ]
+        ],
+        "pos-tags": [
+            "NNP",
+            "NNP",
+            ",",
+            "NNP",
+            "NNP",
+            "IN",
+            "JJ",
+            "NNP",
+            "NNPS",
+            "NNP",
+            ":",
+            "DT",
+            "NN",
+            "IN",
+            "JJ",
+            ",",
+            "JJ",
+            "CC",
+            "JJ",
+            "NNS",
+            "VBD",
+            "NNP",
+            "WRB",
+            "DT",
+            "NNP",
+            "NNP",
+            "NNP",
+            "VBD",
+            "DT",
+            "NNP",
+            "NN",
+            "POS",
+            "VBG",
+            "IN",
+            "DT",
+            "JJ",
+            "NN",
+            "IN",
+            "DT",
+            "NN",
+            "POS",
+            "NN",
+            "VBZ",
+            "JJ",
+            "."
+        ],
+        "combined-parsing": [
+            "dep=43/gov=-1",
+            "dep=0/gov=1",
+            "dep=1/gov=43",
+            "dep=2/gov=1",
+            "dep=3/gov=4",
+            "dep=4/gov=1",
+            "dep=5/gov=9",
+            "dep=6/gov=9",
+            "dep=7/gov=9",
+            "dep=8/gov=9",
+            "dep=9/gov=4",
+            "dep=10/gov=1",
+            "dep=11/gov=12",
+            "dep=12/gov=20",
+            "dep=13/gov=19",
+            "dep=14/gov=19",
+            "dep=15/gov=14",
+            "dep=16/gov=14",
+            "dep=16/gov=19",
+            "dep=17/gov=14",
+            "dep=18/gov=14",
+            "dep=18/gov=19",
+            "dep=19/gov=12",
+            "dep=20/gov=43",
+            "dep=21/gov=20",
+            "dep=22/gov=27",
+            "dep=23/gov=26",
+            "dep=24/gov=26",
+            "dep=25/gov=26",
+            "dep=26/gov=27",
+            "dep=27/gov=20",
+            "dep=28/gov=30",
+            "dep=29/gov=30",
+            "dep=30/gov=27",
+            "dep=31/gov=30",
+            "dep=32/gov=30",
+            "dep=33/gov=36",
+            "dep=34/gov=36",
+            "dep=35/gov=36",
+            "dep=36/gov=30",
+            "dep=37/gov=41",
+            "dep=38/gov=39",
+            "dep=39/gov=41",
+            "dep=40/gov=39",
+            "dep=41/gov=36",
+            "dep=42/gov=43",
+            "dep=44/gov=43"
+        ],
+        "golden-entity-mentions": [
+            {
+                "entity-type": "PER",
+                "text": "New Boycotts",
+                "start": 0,
+                "end": 2
+            },
+            {
+                "entity-type": "FAC",
+                "text": "bathroom",
+                "start": 41,
+                "end": 42
+            },
+            {
+                "entity-type": "ORG",
+                "text": "U.S. Appeals Court",
+                "start": 24,
+                "end": 27
+            },
+            {
+                "entity-type": "GPE",
+                "text": "Virginia",
+                "start": 29,
+                "end": 30
+            },
+            {
+                "entity-type": "GPE",
+                "text": "WASHINGTON",
+                "start": 9,
+                "end": 10
+            },
+            {
+                "entity-type": "PER",
+                "text": "student",
+                "start": 36,
+                "end": 37
+            }
+        ],
+        "golden-event-mentions": [],
+        "image": [
+            "VOA_EN_NW_2016.04.19.3291980_1.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_3.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_5.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_0.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_4.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_2.jpg"
+        ]
+    },
+    {
+        "sentence_id": "VOA_EN_NW_2016.04.19.3291980_1",
+        "sentence_start": 270,
+        "sentence_end": 473,
+        "sentence": "The 4th Circuit Appeals Court referenced the U.S. Department of Education's bathroom policy that says use of sex-segregated facilities should be \"determined by reference to the student's gender identity.",
+        "words": [
+            "The",
+            "4th",
+            "Circuit",
+            "Appeals",
+            "Court",
+            "referenced",
+            "the",
+            "U.S.",
+            "Department",
+            "of",
+            "Education",
+            "'s",
+            "bathroom",
+            "policy",
+            "that",
+            "says",
+            "use",
+            "of",
+            "sex-segregated",
+            "facilities",
+            "should",
+            "be",
+            "\"",
+            "determined",
+            "by",
+            "reference",
+            "to",
+            "the",
+            "student",
+            "'s",
+            "gender",
+            "identity",
+            ".",
+            "\""
+        ],
+        "index": [
+            [
+                "270",
+                "272"
+            ],
+            [
+                "274",
+                "276"
+            ],
+            [
+                "278",
+                "284"
+            ],
+            [
+                "286",
+                "292"
+            ],
+            [
+                "294",
+                "298"
+            ],
+            [
+                "300",
+                "309"
+            ],
+            [
+                "311",
+                "313"
+            ],
+            [
+                "315",
+                "318"
+            ],
+            [
+                "320",
+                "329"
+            ],
+            [
+                "331",
+                "332"
+            ],
+            [
+                "334",
+                "342"
+            ],
+            [
+                "343",
+                "344"
+            ],
+            [
+                "346",
+                "353"
+            ],
+            [
+                "355",
+                "360"
+            ],
+            [
+                "362",
+                "365"
+            ],
+            [
+                "367",
+                "370"
+            ],
+            [
+                "372",
+                "374"
+            ],
+            [
+                "376",
+                "377"
+            ],
+            [
+                "379",
+                "392"
+            ],
+            [
+                "394",
+                "403"
+            ],
+            [
+                "405",
+                "410"
+            ],
+            [
+                "412",
+                "413"
+            ],
+            [
+                "415",
+                "415"
+            ],
+            [
+                "416",
+                "425"
+            ],
+            [
+                "427",
+                "428"
+            ],
+            [
+                "430",
+                "438"
+            ],
+            [
+                "440",
+                "441"
+            ],
+            [
+                "443",
+                "445"
+            ],
+            [
+                "447",
+                "453"
+            ],
+            [
+                "454",
+                "455"
+            ],
+            [
+                "457",
+                "462"
+            ],
+            [
+                "464",
+                "471"
+            ],
+            [
+                "472",
+                "472"
+            ],
+            [
+                "473",
+                "473"
+            ]
+        ],
+        "pos-tags": [
+            "DT",
+            "JJ",
+            "NN",
+            "NNP",
+            "NNP",
+            "VBD",
+            "DT",
+            "NNP",
+            "NNP",
+            "IN",
+            "NNP",
+            "POS",
+            "NN",
+            "NN",
+            "WDT",
+            "VBZ",
+            "NN",
+            "IN",
+            "JJ",
+            "NNS",
+            "MD",
+            "VB",
+            "``",
+            "VBN",
+            "IN",
+            "NN",
+            "TO",
+            "DT",
+            "NN",
+            "POS",
+            "NN",
+            "NN",
+            ".",
+            "''"
+        ],
+        "combined-parsing": [
+            "dep=5/gov=-1",
+            "dep=0/gov=4",
+            "dep=1/gov=4",
+            "dep=2/gov=4",
+            "dep=3/gov=4",
+            "dep=4/gov=5",
+            "dep=6/gov=8",
+            "dep=7/gov=8",
+            "dep=8/gov=5",
+            "dep=8/gov=15",
+            "dep=9/gov=13",
+            "dep=10/gov=13",
+            "dep=11/gov=10",
+            "dep=12/gov=13",
+            "dep=13/gov=8",
+            "dep=14/gov=8",
+            "dep=15/gov=8",
+            "dep=16/gov=23",
+            "dep=17/gov=19",
+            "dep=18/gov=19",
+            "dep=19/gov=16",
+            "dep=20/gov=23",
+            "dep=21/gov=23",
+            "dep=22/gov=23",
+            "dep=23/gov=15",
+            "dep=24/gov=25",
+            "dep=25/gov=23",
+            "dep=26/gov=31",
+            "dep=27/gov=28",
+            "dep=28/gov=31",
+            "dep=29/gov=28",
+            "dep=30/gov=31",
+            "dep=31/gov=25",
+            "dep=32/gov=5",
+            "dep=33/gov=5"
+        ],
+        "golden-entity-mentions": [
+            {
+                "entity-type": "ORG",
+                "text": "4th Circuit Appeals Court",
+                "start": 1,
+                "end": 5
+            },
+            {
+                "entity-type": "FAC",
+                "text": "bathroom",
+                "start": 12,
+                "end": 13
+            },
+            {
+                "entity-type": "ORG",
+                "text": "U.S. Department of Education's",
+                "start": 7,
+                "end": 12
+            }
+        ],
+        "golden-event-mentions": [],
+        "image": [
+            "VOA_EN_NW_2016.04.19.3291980_1.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_3.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_5.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_0.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_4.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_2.jpg"
+        ]
+    },
+    {
+        "sentence_id": "VOA_EN_NW_2016.04.19.3291980_2",
+        "sentence_start": 475,
+        "sentence_end": 578,
+        "sentence": "The ruling will allow high school student Gavin Grimm to move forward with a lawsuit he filed last year",
+        "words": [
+            "The",
+            "ruling",
+            "will",
+            "allow",
+            "high",
+            "school",
+            "student",
+            "Gavin",
+            "Grimm",
+            "to",
+            "move",
+            "forward",
+            "with",
+            "a",
+            "lawsuit",
+            "he",
+            "filed",
+            "last",
+            "year",
+            "."
+        ],
+        "index": [
+            [
+                "475",
+                "477"
+            ],
+            [
+                "479",
+                "484"
+            ],
+            [
+                "486",
+                "489"
+            ],
+            [
+                "491",
+                "495"
+            ],
+            [
+                "497",
+                "500"
+            ],
+            [
+                "502",
+                "507"
+            ],
+            [
+                "509",
+                "515"
+            ],
+            [
+                "517",
+                "521"
+            ],
+            [
+                "523",
+                "527"
+            ],
+            [
+                "529",
+                "530"
+            ],
+            [
+                "532",
+                "535"
+            ],
+            [
+                "537",
+                "543"
+            ],
+            [
+                "545",
+                "548"
+            ],
+            [
+                "550",
+                "550"
+            ],
+            [
+                "552",
+                "558"
+            ],
+            [
+                "560",
+                "561"
+            ],
+            [
+                "563",
+                "567"
+            ],
+            [
+                "569",
+                "572"
+            ],
+            [
+                "574",
+                "577"
+            ],
+            [
+                "578",
+                "578"
+            ]
+        ],
+        "pos-tags": [
+            "DT",
+            "NN",
+            "MD",
+            "VB",
+            "JJ",
+            "NN",
+            "NN",
+            "NNP",
+            "NNP",
+            "TO",
+            "VB",
+            "RB",
+            "IN",
+            "DT",
+            "NN",
+            "PRP",
+            "VBD",
+            "JJ",
+            "NN",
+            "."
+        ],
+        "combined-parsing": [
+            "dep=3/gov=-1",
+            "dep=0/gov=1",
+            "dep=1/gov=3",
+            "dep=2/gov=3",
+            "dep=4/gov=8",
+            "dep=5/gov=8",
+            "dep=6/gov=8",
+            "dep=7/gov=8",
+            "dep=8/gov=3",
+            "dep=8/gov=10",
+            "dep=9/gov=10",
+            "dep=10/gov=3",
+            "dep=11/gov=10",
+            "dep=12/gov=14",
+            "dep=13/gov=14",
+            "dep=14/gov=10",
+            "dep=15/gov=16",
+            "dep=16/gov=14",
+            "dep=17/gov=18",
+            "dep=18/gov=16",
+            "dep=19/gov=3"
+        ],
+        "golden-entity-mentions": [
+            {
+                "entity-type": "PER",
+                "text": "Gavin Grimm",
+                "start": 7,
+                "end": 9
+            },
+            {
+                "entity-type": "ORG",
+                "text": "school",
+                "start": 5,
+                "end": 6
+            },
+            {
+                "entity-type": "PER",
+                "text": "student",
+                "start": 6,
+                "end": 7
+            }
+        ],
+        "golden-event-mentions": [],
+        "image": [
+            "VOA_EN_NW_2016.04.19.3291980_1.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_3.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_5.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_0.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_4.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_2.jpg"
+        ]
+    }
+      {
+        "sentence_id": "VOA_EN_NW_2016.04.19.3291980_14",
+        "sentence_start": 2574,
+        "sentence_end": 2763,
+        "sentence": "Laws seen as undermining LGBT rights in several Southern states have sparked protests and boycott threats from businesses and entertainers, as well as counterdemonstrations by conservatives",
+        "words": [
+            "Laws",
+            "seen",
+            "as",
+            "undermining",
+            "LGBT",
+            "rights",
+            "in",
+            "several",
+            "Southern",
+            "states",
+            "have",
+            "sparked",
+            "protests",
+            "and",
+            "boycott",
+            "threats",
+            "from",
+            "businesses",
+            "and",
+            "entertainers",
+            ",",
+            "as",
+            "well",
+            "as",
+            "counterdemonstrations",
+            "by",
+            "conservatives",
+            "."
+        ],
+        "index": [
+            [
+                "2574",
+                "2577"
+            ],
+            [
+                "2579",
+                "2582"
+            ],
+            [
+                "2584",
+                "2585"
+            ],
+            [
+                "2587",
+                "2597"
+            ],
+            [
+                "2599",
+                "2602"
+            ],
+            [
+                "2604",
+                "2609"
+            ],
+            [
+                "2611",
+                "2612"
+            ],
+            [
+                "2614",
+                "2620"
+            ],
+            [
+                "2622",
+                "2629"
+            ],
+            [
+                "2631",
+                "2636"
+            ],
+            [
+                "2638",
+                "2641"
+            ],
+            [
+                "2643",
+                "2649"
+            ],
+            [
+                "2651",
+                "2658"
+            ],
+            [
+                "2660",
+                "2662"
+            ],
+            [
+                "2664",
+                "2670"
+            ],
+            [
+                "2672",
+                "2678"
+            ],
+            [
+                "2680",
+                "2683"
+            ],
+            [
+                "2685",
+                "2694"
+            ],
+            [
+                "2696",
+                "2698"
+            ],
+            [
+                "2700",
+                "2711"
+            ],
+            [
+                "2712",
+                "2712"
+            ],
+            [
+                "2714",
+                "2715"
+            ],
+            [
+                "2717",
+                "2720"
+            ],
+            [
+                "2722",
+                "2723"
+            ],
+            [
+                "2725",
+                "2745"
+            ],
+            [
+                "2747",
+                "2748"
+            ],
+            [
+                "2750",
+                "2762"
+            ],
+            [
+                "2763",
+                "2763"
+            ]
+        ],
+        "pos-tags": [
+            "NNS",
+            "VBN",
+            "IN",
+            "VBG",
+            "NNP",
+            "NNS",
+            "IN",
+            "JJ",
+            "JJ",
+            "NNS",
+            "VBP",
+            "VBN",
+            "NNS",
+            "CC",
+            "NN",
+            "NNS",
+            "IN",
+            "NNS",
+            "CC",
+            "NNS",
+            ",",
+            "RB",
+            "RB",
+            "IN",
+            "NNS",
+            "IN",
+            "NNS",
+            "."
+        ],
+        "combined-parsing": [
+            "dep=11/gov=-1",
+            "dep=0/gov=11",
+            "dep=1/gov=0",
+            "dep=2/gov=3",
+            "dep=3/gov=1",
+            "dep=4/gov=5",
+            "dep=5/gov=3",
+            "dep=6/gov=9",
+            "dep=7/gov=9",
+            "dep=8/gov=9",
+            "dep=9/gov=3",
+            "dep=10/gov=11",
+            "dep=12/gov=15",
+            "dep=13/gov=12",
+            "dep=14/gov=12",
+            "dep=14/gov=15",
+            "dep=15/gov=11",
+            "dep=16/gov=17",
+            "dep=17/gov=15",
+            "dep=18/gov=17",
+            "dep=19/gov=15",
+            "dep=19/gov=17",
+            "dep=20/gov=15",
+            "dep=21/gov=15",
+            "dep=22/gov=21",
+            "dep=23/gov=21",
+            "dep=24/gov=11",
+            "dep=24/gov=15",
+            "dep=25/gov=26",
+            "dep=26/gov=24",
+            "dep=27/gov=11"
+        ],
+        "golden-entity-mentions": [
+            {
+                "entity-type": "LOC",
+                "text": "Southern states",
+                "start": 8,
+                "end": 10
+            }
+        ],
+        "golden-event-mentions": [
+            {
+                "trigger": {
+                    "start": 12,
+                    "end": 13,
+                    "text": "protests"
+                },
+                "event_type": "Conflict:Demonstrate",
+                "arguments": [
+                    {
+                        "role": "Place",
+                        "start": 8,
+                        "end": 10,
+                        "text": "Southern states"
+                    }
+                ]
+            }
+        ],
+        "image": [
+            "VOA_EN_NW_2016.04.19.3291980_1.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_3.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_5.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_0.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_4.jpg",
+            "VOA_EN_NW_2016.04.19.3291980_2.jpg"
+        ]
+    }
+]

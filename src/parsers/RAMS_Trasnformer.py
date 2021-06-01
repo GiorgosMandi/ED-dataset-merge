@@ -5,9 +5,9 @@ import re
 from spacy.matcher import Matcher
 from stanfordcorenlp import StanfordCoreNLP
 
-stanford_core_path = "../model/stanford-corenlp-full-2018-10-05"
+stanford_core_path = "../../model/stanford-corenlp-full-2018-10-05"
 nlp = spacy.load('en_core_web_sm')
-snlp = StanfordCoreNLP(stanford_core_path, memory='8g', timeout=60000)
+snlp = StanfordCoreNLP(stanford_core_path, memory='2g', timeout=60)
 
 verb_phrases_patterns = [
     {'POS': 'VERB', 'OP': '?'},
@@ -18,7 +18,7 @@ matcher = Matcher(nlp.vocab)
 matcher.add("verb-phrases", None, verb_phrases_patterns)
 
 # rams_path = 'data/train.jsonlines'
-rams_path = '../data/rams_100.jsonlines'
+rams_path = '../../data/rams_100.jsonlines'
 with open(rams_path) as f:
     rams_jsons = [json.loads(inline_json) for inline_json in f]
 
@@ -39,7 +39,10 @@ for i, instance in enumerate(rams_jsons):
     sentence = ' '.join(words)
 
     nlp_sentence = nlp(sentence)
-    tst = snlp.annotate(sentence,  properties={'annotators': 'tokenize,ssplit,pos,lemma,parse'})
+    snlp_processed_json = snlp.annotate(sentence,  properties={'annotators': 'tokenize,ssplit,pos,lemma,parse'})
+    snlp_processed = json.loads(snlp_processed_json)
+
+    penn_treebank = [re.sub(r'\n|\s+', ' ', s['parse'])   for s in snlp_processed['sentences']]
 
     lemma = []
     words = []
@@ -107,13 +110,14 @@ for i, instance in enumerate(rams_jsons):
         'lemma': lemma,
         'pos-tags': pos_tags,
         'golden-entity-mentions': entities,
-        'golden-event-mentions': events
+        'golden-event-mentions': events,
+        'penn-treebank': penn_treebank
     }
     new_instances.append(new_instance)
 
-with open("../data/RAMS-triggers", "w") as triggers_file:
+with open("../../data/RAMS-triggers", "w") as triggers_file:
     triggers_file.write("\n".join(triggers))
 
-with open("../data/RAMS-roles", "w") as roles_file:
+with open("../../data/RAMS-roles", "w") as roles_file:
     roles_file.write("\n".join(roles))
 print()
