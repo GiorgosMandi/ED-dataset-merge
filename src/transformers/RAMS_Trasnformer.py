@@ -2,7 +2,6 @@ import json
 import spacy
 import re
 from .. utils.chunker import BigramChunker
-from spacy.matcher import Matcher
 from stanfordcorenlp import StanfordCoreNLP
 
 
@@ -13,14 +12,6 @@ class RamsTransformer:
 
         self.nlp = spacy.load('en_core_web_sm')
         self.snlp = StanfordCoreNLP(stanford_core_path, memory='2g', timeout=60)
-
-        verb_phrases_patterns = [
-            {'POS': 'VERB', 'OP': '?'},
-            {'POS': 'ADV', 'OP': '*'},
-            {'POS': 'AUX', 'OP': '*'},
-            {'POS': 'VERB', 'OP': '+'}]
-        self.matcher = Matcher(self.nlp.vocab)
-        self.matcher.add("verb-phrases", None, verb_phrases_patterns)
         self.chunker = BigramChunker()
         self.id_base = "RAMS-instance-"
         self.rams_path = rams_path
@@ -34,10 +25,6 @@ class RamsTransformer:
             rams_jsons = [json.loads(inline_json) for inline_json in f]
 
         for i, instance in enumerate(rams_jsons):
-
-            # TODO add:
-            #  - stanford-colcc
-            #  - conll-head
             new_instance_id = self.id_base + str(i) + "-" + instance['doc_key']
             no_of_sentences = len(instance['sentences'])
 
@@ -50,13 +37,21 @@ class RamsTransformer:
                 text = ' '.join(s)
                 sentences.append({'start': start, 'end': end, 'text': text})
 
-            sentence = ' '.join([s['text'] for s in sentences])
+            text_sentence = ' '.join([s['text'] for s in sentences])
 
-            snlp_processed_json = self.snlp.annotate(sentence,  properties={'annotators': 'tokenize,ssplit,pos,lemma,parse'})
-            snlp_processed = json.loads(snlp_processed_json)
-            penn_treebank = [re.sub(r'\n|\s+', ' ', s['parse']) for s in snlp_processed['sentences']]
+            penn_treebanks = []
+            dependency_parsing = []
+            for s in sentences:
+                snlp_processed_json = self.snlp.annotate(s['text'],  properties={'annotators': 'tokenize,ssplit,pos,lemma,parse'})
+                snlp_processed = json.loads(snlp_processed_json)
 
-            nlp_sentence = self.nlp(sentence)
+                treebank = re.sub(r'\n|\s+', ' ', snlp_processed['sentences'][0]['parse'])
+                penn_treebanks.append(treebank)
+                dep_parse = ['{}/dep={}/gov={}'.format(dep['dep'], dep['dependent'] - 1, dep['governor'] - 1)
+                             for dep in snlp_processed['sentences'][0]['enhancedPlusPlusDependencies']]
+                dependency_parsing.append(dep_parse)
+
+            nlp_sentence = self.nlp(text_sentence)
             lemma = []
             words = []
             pos_tags = []
@@ -73,6 +68,7 @@ class RamsTransformer:
                 s_tags = pos_tags[s['start']: s['end']]
                 zipped = list(zip(s_words, s_tags))
                 s_chunks = self.chunker.parseIOB(zipped)
+                s_chunks = [c [1:] for  c in s_chunks]
                 chunks.append(s_chunks)
 
             entities = []
@@ -114,13 +110,15 @@ class RamsTransformer:
             new_instance = {
                 'id': new_instance_id,
                 'no_of_sentences': no_of_sentences,
-                'sentence': sentence,
+                'sentences': sentences,
+                'text': text_sentence,
                 'words': words,
                 'lemma': lemma,
                 'pos-tags': pos_tags,
                 'golden-entity-mentions': entities,
                 'golden-event-mentions': events_triples,
-                'penn-treebank': penn_treebank,
+                'penn-treebank': penn_treebanks,
+                "stanford-colcc": dependency_parsing,
                 'chunks': chunks
             }
             new_instances.append(new_instance)
