@@ -16,9 +16,14 @@ class Transformer:
         self.chunker = BigramChunker()
 
     def read_json(self, path):
-        with open(path) as f:
-            file = [json.loads(inline_json) for inline_json in f]
-        return file
+        with open(path) as json_file:
+            data = json.loads(json_file.read())
+        return data
+
+    def read_jsonlines(self, path):
+        with open(path) as json_file:
+            data = [json.loads(inline_json) for inline_json in json_file]
+        return data
 
     def simple_parsing(self, sentence):
         nlp_sentence = self.nlp(sentence)

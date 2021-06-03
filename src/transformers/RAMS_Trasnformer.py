@@ -1,6 +1,6 @@
 import json
 import re
-from  .Transformer import Transformer
+from .Transformer import Transformer
 
 
 class RamsTransformer(Transformer):
@@ -10,13 +10,14 @@ class RamsTransformer(Transformer):
         print("rams-transformer intialization")
         self.id_base = "RAMS-instance-"
         self.rams_path = rams_path
+        self.origin = "RAMS"
 
     def transform(self):
         new_instances = []
         roles = set()
         triggers = set()
 
-        rams_jsons = self.read_json(self.rams_path)
+        rams_jsons = self.read_jsonlines(self.rams_path)
 
         for i, instance in enumerate(rams_jsons):
             new_instance_id = self.id_base + str(i) + "-" + instance['doc_key']
@@ -33,11 +34,6 @@ class RamsTransformer(Transformer):
 
             text_sentence = ' '.join([s['text'] for s in sentences])
 
-            # zip(*list) unzips a list o tuples
-            annotations = list(zip(*[self.coreNLP_annotation(s['text']) for s in sentences]))
-            penn_treebanks = annotations[0]
-            dependency_parsing = annotations[1]
-
             parsing = self.simple_parsing(text_sentence)
             lemma = parsing[2]
             words = parsing[0]
@@ -46,6 +42,11 @@ class RamsTransformer(Transformer):
 
             # chunking
             chunks = [self.chunking(words[s['start']: s['end']], pos_tags[s['start']: s['end']]) for s in sentences]
+
+            # zip(*list) unzips a list o tuples
+            annotations = list(zip(*[self.coreNLP_annotation(s['text']) for s in sentences]))
+            penn_treebanks = annotations[0]
+            dependency_parsing = annotations[1]
 
 
             entities = []
@@ -85,6 +86,7 @@ class RamsTransformer(Transformer):
             events_triples.append({'arguments': arguments, 'trigger': trigger, 'event_type': event_type})
 
             new_instance = {
+                'origin': self.origin,
                 'id': new_instance_id,
                 'no_of_sentences': no_of_sentences,
                 'sentences': sentences,
@@ -92,6 +94,7 @@ class RamsTransformer(Transformer):
                 'words': words,
                 'lemma': lemma,
                 'pos-tags': pos_tags,
+                'conll_head': conll_head,
                 'golden-entity-mentions': entities,
                 'golden-event-mentions': events_triples,
                 'penn-treebank': penn_treebanks,
