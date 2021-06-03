@@ -1,18 +1,13 @@
 import json
-import spacy
 import re
-from .. utils.chunker import BigramChunker
-from stanfordcorenlp import StanfordCoreNLP
+from  .Transformer import Transformer
 
 
-class RamsTransformer:
+class RamsTransformer(Transformer):
 
     def __init__(self, rams_path, stanford_core_path):
+        super().__init__(stanford_core_path)
         print("rams-transformer intialization")
-
-        self.nlp = spacy.load('en_core_web_sm')
-        self.snlp = StanfordCoreNLP(stanford_core_path, memory='2g', timeout=60)
-        self.chunker = BigramChunker()
         self.id_base = "RAMS-instance-"
         self.rams_path = rams_path
 
@@ -21,8 +16,7 @@ class RamsTransformer:
         roles = set()
         triggers = set()
 
-        with open(self.rams_path) as f:
-            rams_jsons = [json.loads(inline_json) for inline_json in f]
+        rams_jsons = self.read_json(self.rams_path)
 
         for i, instance in enumerate(rams_jsons):
             new_instance_id = self.id_base + str(i) + "-" + instance['doc_key']
@@ -39,37 +33,20 @@ class RamsTransformer:
 
             text_sentence = ' '.join([s['text'] for s in sentences])
 
-            penn_treebanks = []
-            dependency_parsing = []
-            for s in sentences:
-                snlp_processed_json = self.snlp.annotate(s['text'],  properties={'annotators': 'tokenize,ssplit,pos,lemma,parse'})
-                snlp_processed = json.loads(snlp_processed_json)
+            # zip(*list) unzips a list o tuples
+            annotations = list(zip(*[self.coreNLP_annotation(s['text']) for s in sentences]))
+            penn_treebanks = annotations[0]
+            dependency_parsing = annotations[1]
 
-                treebank = re.sub(r'\n|\s+', ' ', snlp_processed['sentences'][0]['parse'])
-                penn_treebanks.append(treebank)
-                dep_parse = ['{}/dep={}/gov={}'.format(dep['dep'], dep['dependent'] - 1, dep['governor'] - 1)
-                             for dep in snlp_processed['sentences'][0]['enhancedPlusPlusDependencies']]
-                dependency_parsing.append(dep_parse)
+            parsing = self.simple_parsing(text_sentence)
+            lemma = parsing[2]
+            words = parsing[0]
+            pos_tags = parsing[1]
+            conll_head = parsing[3]
 
-            nlp_sentence = self.nlp(text_sentence)
-            lemma = []
-            words = []
-            pos_tags = []
-            conll_head = []
-            for word in nlp_sentence:
-                words.append(word.text)
-                lemma.append(word.lemma_)
-                pos_tags.append(word.tag_)
-                conll_head.append(word.head.i)
+            # chunking
+            chunks = [self.chunking(words[s['start']: s['end']], pos_tags[s['start']: s['end']]) for s in sentences]
 
-            chunks = []
-            for s in sentences:
-                s_words = words[s['start']: s['end']]
-                s_tags = pos_tags[s['start']: s['end']]
-                zipped = list(zip(s_words, s_tags))
-                s_chunks = self.chunker.parseIOB(zipped)
-                s_chunks = [c [1:] for  c in s_chunks]
-                chunks.append(s_chunks)
 
             entities = []
             for j, entity in enumerate(instance['ent_spans']):
