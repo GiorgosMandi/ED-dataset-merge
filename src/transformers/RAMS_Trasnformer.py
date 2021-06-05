@@ -54,9 +54,9 @@ class RamsTransformer(Transformer):
                 start = entity[0]
                 end = entity[1] + 1
                 text = ' '.join(words[start: end])
-                entity_id = new_instance_id + "-" + str(j)
+                entity_id = new_instance_id + "-entity-" + str(j)
                 entity_type = utilities.most_frequent(entity_types[start: end])
-                new_entity = {'start': start, 'end': end, 'text': text, 'entity_id': entity_id,
+                new_entity = {'start': start, 'end': end, 'text': text, 'entity-id': entity_id,
                               'entity-type': entity_type, 'detailed-entity-type': ""}
                 entities.append(new_entity)
 

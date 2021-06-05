@@ -1,5 +1,6 @@
 from .transformers.RAMS_Trasnformer import RamsTransformer
 from .transformers.M2E2_Transformer import M2e2Transformer
+from .transformers.ACE_Transformer import AceTransformer
 import argparse
 
 import os
@@ -14,6 +15,7 @@ os.chdir(args.base)
 core_nlp_path = 'model/stanford-corenlp-full-2018-10-05'
 rams_path = 'data/rams_100.jsonlines'
 m2e2_path = 'data/article_0816_filter.json'
+ace_path = 'data/ace.json'
 
 if args.dt == "rams":
     transformer = RamsTransformer(rams_path, core_nlp_path)
@@ -21,6 +23,10 @@ if args.dt == "rams":
 
 elif args.dt == "m2e2":
     transformer = M2e2Transformer(m2e2_path, core_nlp_path)
+    instances = transformer.transform()
+
+elif args.dt == "ace":
+    transformer = AceTransformer(ace_path, core_nlp_path)
     instances = transformer.transform()
 
 elif args.dt == "all":

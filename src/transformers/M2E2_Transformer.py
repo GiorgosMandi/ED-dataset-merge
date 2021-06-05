@@ -46,7 +46,8 @@ class M2e2Transformer(Transformer):
             dependency_parsing = annotations[1]
 
             entity_types = {}
-            for entity in instance['golden-entity-mentions']:
+            for j, entity in enumerate(instance['golden-entity-mentions']):
+                entity['entity-id'] = new_instance_id + "-entity-" + str(j)
                 entity['detailed-entity-type'] = ""
                 entity_types[entity['text']] = entity['entity-type']
 
