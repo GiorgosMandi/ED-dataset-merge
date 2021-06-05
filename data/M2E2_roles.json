@@ -1,0 +1,17 @@
+{
+  "Victim": "victim",
+  "Origin": "origin",
+  "Giver": "giver",
+  "Police": "police",
+  "Entity": "observedentity",
+  "Place": "place",
+  "Person": "person",
+  "Artifact": "artifact",
+  "Destination": "destination",
+  "Instrument": "instrument",
+  "Attacker": "attacker",
+  "Recipient": "recipient",
+  "Vehicle": "vehicle",
+  "Agent": "spy",
+  "Target": "target"
+}

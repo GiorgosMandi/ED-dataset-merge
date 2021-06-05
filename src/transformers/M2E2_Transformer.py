@@ -14,15 +14,15 @@ class M2e2Transformer(Transformer):
         self.id_base = "M2E2-instance-"
         self.m2e2_path = m2e2_path
         self.origin = "M2E2"
+        self.event_types_mapper = utilities.read_json(EVENT_TYPE_MAPPER_PATH)
+        self.roles_mapper = utilities.read_json(ROLE_MAPPER_PATH)
 
     def transform(self):
         new_instances = []
-        roles = set()
-        triggers = set()
-
-        m2e2_jsons = self.read_json(self.m2e2_path)
-
-        for i, instance in enumerate(m2e2_jsons):
+        i = -1
+        m2e2_jsons = utilities.read_json(self.m2e2_path)
+        for instance in tqdm(m2e2_jsons):
+            i += 1
             new_instance_id = self.id_base + str(i) + "-" + instance['sentence_id']
             text_sentence = instance['sentence']
             sentences = [{

@@ -1,6 +1,7 @@
-import json
 import re
 from .Transformer import Transformer
+from tqdm import tqdm
+from ..utils import utilities
 
 
 class RamsTransformer(Transformer):
@@ -14,12 +15,10 @@ class RamsTransformer(Transformer):
 
     def transform(self):
         new_instances = []
-        roles = set()
-        triggers = set()
-
-        rams_jsons = self.read_jsonlines(self.rams_path)
-
-        for i, instance in enumerate(rams_jsons):
+        i = -1
+        rams_jsons = utilities.read_jsonlines(self.rams_path)
+        for instance in tqdm(rams_jsons):
+            i += 1
             new_instance_id = self.id_base + str(i) + "-" + instance['doc_key']
             no_of_sentences = len(instance['sentences'])
 
@@ -39,6 +38,7 @@ class RamsTransformer(Transformer):
             words = parsing[0]
             pos_tags = parsing[1]
             conll_head = parsing[3]
+            entity_types = parsing[4]
 
             # chunking
             chunks = [self.chunking(words[s['start']: s['end']], pos_tags[s['start']: s['end']]) for s in sentences]
@@ -51,14 +51,13 @@ class RamsTransformer(Transformer):
 
             entities = []
             for j, entity in enumerate(instance['ent_spans']):
-                # TODO: to add
-                #  - entity_type
-                #  - phrase_type
                 start = entity[0]
                 end = entity[1] + 1
                 text = ' '.join(words[start: end])
                 entity_id = new_instance_id + "-" + str(j)
-                new_entity = {'start': start, 'end': end, 'text': text, 'entity_id': entity_id}
+                entity_type = utilities.most_frequent(entity_types[start: end])
+                new_entity = {'start': start, 'end': end, 'text': text, 'entity_id': entity_id,
+                              'entity-type': entity_type, 'detailed-entity-type': ""}
                 entities.append(new_entity)
 
             if len(instance['evt_triggers']) > 1:
@@ -67,7 +66,6 @@ class RamsTransformer(Transformer):
             trigger_start = instance['evt_triggers'][0][0]
             trigger_end = instance['evt_triggers'][0][1] + 1
             trigger_text = ' '.join(words[trigger_start: trigger_end]).lower()
-            triggers.add(trigger_text)
             trigger = {'start': trigger_start, 'end': trigger_end, 'text': trigger_text}
 
             event_type = instance['evt_triggers'][0][2][0][0]
@@ -78,9 +76,10 @@ class RamsTransformer(Transformer):
             for triple in instance['gold_evt_links']:
                 arg_start = triple[1][0]
                 arg_end = triple[1][1] + 1
+                entity_type = utilities.most_frequent(entity_types[arg_start: arg_end])
                 arg_role = re.split("\d", triple[2])[-1]
-                roles.add(arg_role)
-                argument = {'start': arg_start, 'end': arg_end, 'role': arg_role}
+                argument = {'start': arg_start, 'end': arg_end, 'role': arg_role, 'entity-type': entity_type,
+                            'detailed-entity-type': ""}
                 arguments.append(argument)
 
             events_triples.append({'arguments': arguments, 'trigger': trigger, 'event_type': event_type})
