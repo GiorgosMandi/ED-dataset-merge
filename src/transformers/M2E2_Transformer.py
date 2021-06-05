@@ -1,12 +1,16 @@
-
+from tqdm import tqdm
 from .Transformer import Transformer
+from ..utils import utilities
+
+EVENT_TYPE_MAPPER_PATH = "data/M2E2_event_types.json"
+ROLE_MAPPER_PATH = "data/M2E2_roles.json"
 
 
 class M2e2Transformer(Transformer):
 
     def __init__(self, m2e2_path, stanford_core_path):
         super().__init__(stanford_core_path)
-        print("rams-transformer intialization")
+        print("m2e2-transformer intialization")
         self.id_base = "M2E2-instance-"
         self.m2e2_path = m2e2_path
         self.origin = "M2E2"
@@ -41,6 +45,20 @@ class M2e2Transformer(Transformer):
             penn_treebanks = annotations[0]
             dependency_parsing = annotations[1]
 
+            entity_types = {}
+            for entity in instance['golden-entity-mentions']:
+                entity['detailed-entity-type'] = ""
+                entity_types[entity['text']] = entity['entity-type']
+
+            if len(instance['golden-event-mentions']) > 0:
+                for event in instance['golden-event-mentions']:
+                    event_type = event['event_type']
+                    event['event_type'] = self.event_types_mapper[event_type]
+                    for arg in event['arguments']:
+                        role = arg['role']
+                        arg['role'] = self.roles_mapper[role]
+                        arg['entity-type'] = entity_types[arg['text']]
+                        arg['detailed-entity-type'] = ""
 
             new_instance = {
                 'origin': self.origin,
