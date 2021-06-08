@@ -5,21 +5,25 @@ from ..utils import utilities
 EVENT_TYPE_MAPPER_PATH = "data/ACE/ACE_events_mapping.json"
 ROLE_MAPPER_PATH = "data/ACE/ACE_roles_mapping.json"
 
+
 class AceTransformer(Transformer):
 
     def __init__(self, ace_path, stanford_core_path):
         super().__init__(stanford_core_path)
-        print("ace-transformer intialization")
+        print("Ace-Transformer initialization")
         self.id_base = "ACE-instance-"
         self.path = ace_path
         self.origin = "ACE"
 
+        # mappers that map roles/eventTypes of ACE to the ones of RAMS
         self.event_types_mapper = utilities.read_json(EVENT_TYPE_MAPPER_PATH)
         self.roles_mapper = utilities.read_json(ROLE_MAPPER_PATH)
 
+    # process eventTypes to be more lookalike with the ones of rams
     def process_event(self, event_type):
         return event_type.replace(":", ".").replace("-", "")
 
+    # accumulate and store all the roles/eventTypes
     def export_types(self, roles_path, event_paths):
         events = set()
         roles = set()
@@ -33,6 +37,7 @@ class AceTransformer(Transformer):
         utilities.write_iterable(roles_path, roles)
         utilities.write_iterable(event_paths, events)
 
+    # transform dataset to the common schema
     def transform(self):
         new_instances = []
         i = -1
@@ -49,6 +54,7 @@ class AceTransformer(Transformer):
                 'text': text_sentence
             }]
 
+            # simple parsing - acquire words, lemma, pos-tangs and dependency heads
             parsing = self.simple_parsing(text_sentence)
             lemma = parsing[2]
             words = parsing[0]
@@ -58,11 +64,13 @@ class AceTransformer(Transformer):
             # chunking
             chunks = [self.chunking(words[s['start']: s['end']], pos_tags[s['start']: s['end']]) for s in sentences]
 
+            # advanced parsing - acquire treebank and dependency parsing
             # zip(*list) unzips a list o tuples
             annotations = list(zip(*[self.coreNLP_annotation(s['text']) for s in sentences]))
             penn_treebanks = annotations[0]
             dependency_parsing = annotations[1]
 
+            # adjust entities
             entities = []
             for entity in instance["golden-entity-mentions"]:
                 entity_type = entity["entity-type"].split(":")
@@ -71,6 +79,7 @@ class AceTransformer(Transformer):
                               "detailed-entity-type":  entity_type[1]}
                 entities.append(new_entity)
 
+            # adjust events
             for event in instance['golden-event-mentions']:
                 processed_event = self.process_event(event['event_type'])
                 event['event_type'] = self.event_types_mapper[processed_event]

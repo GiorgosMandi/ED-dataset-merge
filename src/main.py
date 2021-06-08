@@ -26,6 +26,10 @@ if args.dt == "rams" or args.dt == "all":
     transformer = RamsTransformer(rams_path, core_nlp_path)
     instances = transformer.transform()
 
+elif args.dt == "edd" or args.dt == "all":
+    transformer = M2e2Transformer(m2e2_path, core_nlp_path)
+    instances = transformer.transform()
+
 elif args.dt == "m2e2" or args.dt == "all":
     transformer = M2e2Transformer(m2e2_path, core_nlp_path)
     instances = transformer.transform()
