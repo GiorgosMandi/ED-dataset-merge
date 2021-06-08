@@ -64,17 +64,17 @@ class M2e2Transformer(Transformer):
             new_instance = {
                 'origin': self.origin,
                 'id': new_instance_id,
-                'no_of_sentences': 1,
+                'no-of-sentences': 1,
                 'sentences': sentences,
                 'text': text_sentence,
                 'words': words,
                 'lemma': lemma,
                 'pos-tags': pos_tags,
-                'conll_head': conll_head,
+                'head': conll_head,
                 'golden-entity-mentions': instance['golden-entity-mentions'],
                 'golden-event-mentions': instance['golden-event-mentions'],
                 'penn-treebank': penn_treebanks,
-                "stanford-colcc": dependency_parsing,
+                "dependency-parsing": dependency_parsing,
                 'chunks': chunks
             }
             new_instances.append(new_instance)

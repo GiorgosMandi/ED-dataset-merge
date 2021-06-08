@@ -4,6 +4,7 @@ from tqdm import tqdm
 from ..utils import utilities
 
 
+# todo add word's text in argument
 class RamsTransformer(Transformer):
 
     def __init__(self, rams_path, stanford_core_path):
@@ -82,22 +83,22 @@ class RamsTransformer(Transformer):
                             'detailed-entity-type': ""}
                 arguments.append(argument)
 
-            events_triples.append({'arguments': arguments, 'trigger': trigger, 'event_type': event_type})
+            events_triples.append({'arguments': arguments, 'trigger': trigger, 'event-type': event_type})
 
             new_instance = {
                 'origin': self.origin,
                 'id': new_instance_id,
-                'no_of_sentences': no_of_sentences,
+                'no-of-sentences': no_of_sentences,
                 'sentences': sentences,
                 'text': text_sentence,
                 'words': words,
                 'lemma': lemma,
                 'pos-tags': pos_tags,
-                'conll_head': conll_head,
+                'head': conll_head,
                 'golden-entity-mentions': entities,
                 'golden-event-mentions': events_triples,
                 'penn-treebank': penn_treebanks,
-                "stanford-colcc": dependency_parsing,
+                "dependency-parsing": dependency_parsing,
                 'chunks': chunks
             }
             new_instances.append(new_instance)

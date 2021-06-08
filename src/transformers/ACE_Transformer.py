@@ -2,6 +2,12 @@ from .Transformer import Transformer
 from tqdm import tqdm
 from ..utils import utilities
 
+# TODO
+#  -create a list with all roles
+#  -load all roles from RAMS
+#  -for each role of ACE compute a similarity scolre with the roles of RAMS
+#  -create a dict where the roles of ACE will point to the most similar role of RAMS
+#  -repeat this procedure for event types
 
 class AceTransformer(Transformer):
 
@@ -11,6 +17,19 @@ class AceTransformer(Transformer):
         self.id_base = "ACE-instance-"
         self.path = ace_path
         self.origin = "ACE"
+
+    def export_types(self, roles_path, event_paths):
+        events = set()
+        roles = set()
+        ace_jsons = utilities.read_json(self.path)
+        for instance in tqdm(ace_jsons):
+            for event in instance['golden-event-mentions']:
+                events.add(event['event_type'].replace(":", ".").replace("-", ""))
+                for arg in event['arguments']:
+                    roles.add(arg["role"])
+
+        utilities.write_iterable(roles_path, roles)
+        utilities.write_iterable(event_paths, events)
 
     def transform(self):
         new_instances = []
@@ -59,17 +78,17 @@ class AceTransformer(Transformer):
             new_instance = {
                 'origin': self.origin,
                 'id': new_instance_id,
-                'no_of_sentences': no_of_sentences,
+                'no-of-sentences': no_of_sentences,
                 'sentences': sentences,
                 'text': text_sentence,
                 'words': words,
                 'lemma': lemma,
                 'pos-tags': pos_tags,
-                'conll_head': conll_head,
+                'head': conll_head,
                 'golden-entity-mentions': entities,
                 'golden-event-mentions': instance['golden-event-mentions'],
                 'penn-treebank': penn_treebanks,
-                "stanford-colcc": dependency_parsing,
+                "dependency-parsing": dependency_parsing,
                 'chunks': chunks
             }
             new_instances.append(new_instance)
