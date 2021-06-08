@@ -25,4 +25,13 @@ class BigramChunker(nltk.ChunkParserI):
     def parseIOB(self, sentence):
         return nltk.chunk.tree2conlltags(self.parse(sentence))
 
+    def evaluateChunker(self):
+        test_sents = conll2000.chunked_sents('test.txt', chunk_types=['NP'])
+        return self.evaluate(test_sents)
+
+
+# chunker = BigramChunker()
+# print(chunker.evaluateChunker())
+
+
 
