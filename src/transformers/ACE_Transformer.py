@@ -2,12 +2,8 @@ from .Transformer import Transformer
 from tqdm import tqdm
 from ..utils import utilities
 
-# TODO
-#  -create a list with all roles
-#  -load all roles from RAMS
-#  -for each role of ACE compute a similarity scolre with the roles of RAMS
-#  -create a dict where the roles of ACE will point to the most similar role of RAMS
-#  -repeat this procedure for event types
+EVENT_TYPE_MAPPER_PATH = "data/ACE/ACE_events_mapping.json"
+ROLE_MAPPER_PATH = "data/ACE/ACE_roles_mapping.json"
 
 class AceTransformer(Transformer):
 
@@ -18,13 +14,19 @@ class AceTransformer(Transformer):
         self.path = ace_path
         self.origin = "ACE"
 
+        self.event_types_mapper = utilities.read_json(EVENT_TYPE_MAPPER_PATH)
+        self.roles_mapper = utilities.read_json(ROLE_MAPPER_PATH)
+
+    def process_event(self, event_type):
+        return event_type.replace(":", ".").replace("-", "")
+
     def export_types(self, roles_path, event_paths):
         events = set()
         roles = set()
         ace_jsons = utilities.read_json(self.path)
         for instance in tqdm(ace_jsons):
             for event in instance['golden-event-mentions']:
-                events.add(event['event_type'].replace(":", ".").replace("-", ""))
+                events.add(self.process_event(event['event_type']))
                 for arg in event['arguments']:
                     roles.add(arg["role"])
 
@@ -70,10 +72,14 @@ class AceTransformer(Transformer):
                 entities.append(new_entity)
 
             for event in instance['golden-event-mentions']:
+                processed_event = self.process_event(event['event_type'])
+                event['event_type'] = self.event_types_mapper[processed_event]
                 for arg in event['arguments']:
                     entity_type = arg["entity-type"].split(":")
                     arg["entity-type"] = entity_type[0]
                     arg["detailed-entity-type"] = entity_type[1]
+                    role = arg['role']
+                    arg["role"] = self.roles_mapper[role]
 
             new_instance = {
                 'origin': self.origin,

@@ -22,15 +22,15 @@ rams_path = RAMS_dir_path + '/rams_100.jsonlines'
 m2e2_path = M2E2_dir_path + '/article_0816_filter.json'
 ace_path = ACE_dir_path + '/ace.json'
 
-if args.dt == "rams":
+if args.dt == "rams" or args.dt == "all":
     transformer = RamsTransformer(rams_path, core_nlp_path)
     instances = transformer.transform()
 
-elif args.dt == "m2e2":
+elif args.dt == "m2e2" or args.dt == "all":
     transformer = M2e2Transformer(m2e2_path, core_nlp_path)
     instances = transformer.transform()
 
-elif args.dt == "ace":
+elif args.dt == "ace" or args.dt == "all":
     transformer = AceTransformer(ace_path, core_nlp_path)
 
     ace_roles_path = ACE_dir_path + '/ACE_roles.txt'
@@ -49,14 +49,9 @@ elif args.dt == "ace":
         utilities.write_json(roles_mapping, ace_roles_mapping_path)
         utilities.write_json(events_mapping, ace_events_mapping_path)
 
-    # instances = transformer.transform()
+    instances = transformer.transform()
 
-elif args.dt == "all":
-    rams_transformer = RamsTransformer(rams_path, core_nlp_path)
-    rams_instances = rams_transformer.transform()
 
-    m2e2_transformer = M2e2Transformer(m2e2_path, core_nlp_path)
-    m2e2_instances = m2e2_transformer.transform()
 
 
 print("done")

@@ -2,8 +2,8 @@ from tqdm import tqdm
 from .Transformer import Transformer
 from ..utils import utilities
 
-EVENT_TYPE_MAPPER_PATH = "data/M2E2_event_types.json"
-ROLE_MAPPER_PATH = "data/M2E2_roles.json"
+EVENT_TYPE_MAPPER_PATH = "data/M2E2/M2E2_event_types.json"
+ROLE_MAPPER_PATH = "data/M2E2/M2E2_roles.json"
 
 
 class M2e2Transformer(Transformer):
