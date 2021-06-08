@@ -1,6 +1,8 @@
 from .transformers.RAMS_Trasnformer import RamsTransformer
 from .transformers.M2E2_Transformer import M2e2Transformer
 from .transformers.ACE_Transformer import AceTransformer
+from .transformers.EDD_Transformer import EDDTransformer
+
 from .utils import utilities
 import argparse
 from os import path
@@ -13,21 +15,24 @@ parser.add_argument('-dt', metavar='base_path', type=str, help='witch dataset to
 
 args = parser.parse_args()
 os.chdir(args.base)
-ACE_dir_path = 'data/ACE'
-M2E2_dir_path = 'data/M2E2'
 RAMS_dir_path = 'data/RAMS'
+EDD_dit_path = 'data/EDD'
+M2E2_dir_path = 'data/M2E2'
+ACE_dir_path = 'data/ACE'
 
-core_nlp_path = 'model/stanford-corenlp-full-2018-10-05'
 rams_path = RAMS_dir_path + '/rams_100.jsonlines'
+edd_path = EDD_dit_path + '/g01result1.json'
 m2e2_path = M2E2_dir_path + '/article_0816_filter.json'
 ace_path = ACE_dir_path + '/ace.json'
+
+core_nlp_path = 'model/stanford-corenlp-full-2018-10-05'
 
 if args.dt == "rams" or args.dt == "all":
     transformer = RamsTransformer(rams_path, core_nlp_path)
     instances = transformer.transform()
 
 elif args.dt == "edd" or args.dt == "all":
-    transformer = M2e2Transformer(m2e2_path, core_nlp_path)
+    transformer = EDDTransformer(edd_path, core_nlp_path)
     instances = transformer.transform()
 
 elif args.dt == "m2e2" or args.dt == "all":
