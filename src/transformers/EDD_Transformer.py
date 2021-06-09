@@ -19,6 +19,7 @@ class EDDTransformer(Transformer):
         edd_jsons = utilities.read_json(self.path)
         for instance in tqdm(edd_jsons):
             instance_data = instance['data']
+
             new_instance_id = self.id_base + "-" + instance_data['filename'] + str(i)
             text_sentence = instance_data['text']
             text_sentence = re.sub(r'(?<!\.)\n', ' . ', instance_data['text']).replace("\n", "")
@@ -30,8 +31,11 @@ class EDDTransformer(Transformer):
             conll_head = []
             entity_types = []
             chunks = []
+            penn_treebanks = []
+            dependency_parsing = []
             next_start = 0
-            for sentence in text_sentence.split("."):
+            for sentence in filter(None, text_sentence.strip().split(".", )):
+                # sentence = sentence
                 parsing = self.simple_parsing(sentence)
                 s_words = parsing[0]
                 s_tags = parsing[1]
@@ -48,6 +52,13 @@ class EDDTransformer(Transformer):
 
                 s_chunks = self.chunking(s_words, s_tags)
                 chunks.append(s_chunks)
+
+                # advanced parsing - acquire treebank and dependency parsing
+                # zip(*list) unzips a list o tuples
+                annotations = list(zip(*[self.coreNLP_annotation(sentence)]))
+                penn_treebanks.append(annotations[0])
+                dependency_parsing.append(annotations[1])
+                print()
 
             no_of_sentences = len(sentences)
 
