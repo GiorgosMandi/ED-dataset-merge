@@ -78,6 +78,7 @@ class RamsTransformer(Transformer):
 
             # process events - construct event-triples
             event_type = instance['evt_triggers'][0][2][0][0]
+            event_type = self.events_mapper[event_type]
             events_triples = []
             arguments = []
             for triple in instance['gold_evt_links']:
@@ -86,7 +87,8 @@ class RamsTransformer(Transformer):
                 text = ' '.join(words[arg_start: arg_end])
                 entity_type = utilities.most_frequent(entity_types[arg_start: arg_end])
                 arg_role = re.split("\d", triple[2])[-1]
-                argument = {'start': arg_start, 'end': arg_end, 'text': text,'role': arg_role,
+                arg_role = self.roles_mapper[arg_role]
+                argument = {'start': arg_start, 'end': arg_end, 'text': text, 'role': arg_role,
                             'entity-type': entity_type, 'detailed-entity-type': ""}
                 arguments.append(argument)
 

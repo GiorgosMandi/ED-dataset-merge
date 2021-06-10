@@ -3,8 +3,7 @@ from tqdm import tqdm
 from ..utils import utilities
 
 EVENT_TYPE_MAPPER_PATH = "data/ACE/ACE_events_mapping.json"
-ROLE_MAPPER_PATH = "data/ACE/ACE_roles_mapping.json"
-
+ROLES_MAPPER_PATH = "data/ACE/ACE_roles_mapping.json"
 
 class AceTransformer(Transformer):
 
@@ -17,7 +16,7 @@ class AceTransformer(Transformer):
 
         # mappers that map roles/eventTypes of ACE to the ones of RAMS
         self.event_types_mapper = utilities.read_json(EVENT_TYPE_MAPPER_PATH)
-        self.roles_mapper = utilities.read_json(ROLE_MAPPER_PATH)
+        self.roles_mapper = utilities.read_json(ROLES_MAPPER_PATH)
 
     # process eventTypes to be more lookalike with the ones of rams
     def process_event(self, event_type):

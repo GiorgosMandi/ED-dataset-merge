@@ -2,9 +2,6 @@ from tqdm import tqdm
 from .Transformer import Transformer
 from ..utils import utilities
 
-EVENT_TYPE_MAPPER_PATH = "data/M2E2/M2E2_event_types.json"
-ROLE_MAPPER_PATH = "data/M2E2/M2E2_roles.json"
-
 
 class M2e2Transformer(Transformer):
 
@@ -14,10 +11,6 @@ class M2e2Transformer(Transformer):
         self.id_base = "M2E2-instance-"
         self.m2e2_path = m2e2_path
         self.origin = "M2E2"
-
-        # mappers that map roles/eventTypes of M2E2 to the ones of RAMS
-        self.event_types_mapper = utilities.read_json(EVENT_TYPE_MAPPER_PATH)
-        self.roles_mapper = utilities.read_json(ROLE_MAPPER_PATH)
 
     # transform dataset to the common schema
     def transform(self):
@@ -61,9 +54,9 @@ class M2e2Transformer(Transformer):
             if len(instance['golden-event-mentions']) > 0:
                 for event in instance['golden-event-mentions']:
                     event_type = event['event_type']
-                    event['event_type'] = self.event_types_mapper[event_type]
+                    event['event_type'] = self.events_mapper[event_type]
                     for arg in event['arguments']:
-                        role = arg['role']
+                        role = arg['role'].lower()
                         arg['role'] = self.roles_mapper[role]
                         arg['entity-type'] = entity_types[arg['text']]
                         arg['detailed-entity-type'] = ""

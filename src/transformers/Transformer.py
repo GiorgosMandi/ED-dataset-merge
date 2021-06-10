@@ -1,11 +1,13 @@
 import json
 import re
 from abc import abstractmethod
-
 import spacy
+from ..utils import utilities
 from ..utils.chunker import BigramChunker
 from stanfordcorenlp import StanfordCoreNLP
 
+ROLES_MAPPER_PATH = "data/roles_mapping.json"
+EVENTS_MAPPER_PATH = "data/events_mapping.json"
 
 class Transformer:
 
@@ -14,6 +16,9 @@ class Transformer:
         self.nlp = spacy.load('en_core_web_sm')
         self.snlp = StanfordCoreNLP(stanford_core_path, memory='3g', timeout=10, logging_level="INFO")
         self.chunker = BigramChunker()
+        self.roles_mapper = utilities.read_json(ROLES_MAPPER_PATH)
+        self.events_mapper = utilities.read_json(EVENTS_MAPPER_PATH)
+
 
     def simple_parsing(self, sentence):
         nlp_sentence = self.nlp(sentence)

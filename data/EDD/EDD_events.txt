@@ -1,0 +1,10 @@
+property.seizure/destruction
+fight
+release.people
+protest/riot
+terrorist/suicide.attack
+exhibit.force.posture
+assault
+cyber.attack
+restrict/reduce.rights
+arrest
