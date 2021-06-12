@@ -50,43 +50,27 @@ class EDDTransformer(Transformer):
                 instance_data = instance['data']
 
                 new_instance_id = self.id_base + "-" + instance_data['filename'] + str(i)
-                text_sentence = instance_data['text']
                 text_sentence = re.sub(r'(?<!\.)\n', ' . ', instance_data['text']).replace("\n", "")
 
                 sentences = []
                 words = []
                 lemma = []
                 pos_tags = []
-                conll_head = []
                 entity_types = []
                 chunks = []
                 penn_treebanks = []
                 dependency_parsing = []
-                next_start = 0
                 for sentence in filter(None, text_sentence.strip().split(".", )):
-                    # sentence = sentence
-                    parsing = self.simple_parsing(sentence)
-                    s_words = parsing[0]
-                    s_tags = parsing[1]
-                    words.extend(s_words)
-                    pos_tags.extend(s_tags)
-                    lemma.extend(parsing[2])
-                    conll_head.extend(parsing[3])
-                    entity_types.extend(parsing[4])
-
-                    start = next_start
-                    end = start + len(parsing[0])
-                    next_start = end
-                    sentences.append({'start': start, 'end': end, 'text': sentence, 'words': parsing[0]})
-
-                    s_chunks = self.chunking(s_words, s_tags)
-                    chunks.append(s_chunks)
-
-                    # advanced parsing - acquire treebank and dependency parsing
-                    # zip(*list) unzips a list o tuples
-                    annotations = list(zip(*[self.coreNLP_annotation(sentence)]))
-                    penn_treebanks.append(annotations[0])
-                    dependency_parsing.append(annotations[1])
+                    parsing = self.advanced_parsing(sentence)
+                    words.extend(parsing['words'])
+                    pos_tags.extend(parsing['pos-tag'])
+                    lemma.extend(parsing['lemma'])
+                    # conll_head.extend(parsing['head'])
+                    entity_types.extend(parsing['ner'])
+                    sentences.extend(parsing['sentences'])
+                    penn_treebanks.extend(parsing['treebank'])
+                    dependency_parsing.extend(parsing['dep-parse'])
+                    chunks.extend([self.chunking(parsing['words'], parsing['pos-tag'])])
 
                 no_of_sentences = len(sentences)
 
@@ -135,11 +119,11 @@ class EDDTransformer(Transformer):
                     'words': words,
                     'lemma': lemma,
                     'pos-tags': pos_tags,
-                    'head': conll_head,
-                   'golden-entity-mentions': entities,
-                   'golden-event-mentions': events_triples,
-                   'penn-treebank': penn_treebanks,
-                   "dependency-parsing": dependency_parsing,
+                    # 'head': conll_head,
+                    'golden-entity-mentions': entities,
+                    'golden-event-mentions': events_triples,
+                    'penn-treebank': penn_treebanks,
+                    'dependency-parsing': dependency_parsing,
                     'chunks': chunks
                 }
                 new_instances.append(new_instance)

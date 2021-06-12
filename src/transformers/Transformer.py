@@ -11,7 +11,18 @@ EVENTS_MAPPER_PATH = "data/events_mapping.json"
 
 class Transformer:
 
+
     def __init__(self, stanford_core_path):
+
+        self.ner_tags = {
+            'ORGANIZATION': 'ORG',
+            'LOCATION': 'LOC',
+            'PERSON': 'PER',
+            'DATE': 'DATE',
+            'O': "",
+            'NUMBER': "VALUE"
+        }
+
         print("transformer intialization")
         self.nlp = spacy.load('en_core_web_sm')
         self.snlp = StanfordCoreNLP(stanford_core_path, memory='3g', timeout=10, logging_level="INFO")
@@ -19,37 +30,45 @@ class Transformer:
         self.roles_mapper = utilities.read_json(ROLES_MAPPER_PATH)
         self.events_mapper = utilities.read_json(EVENTS_MAPPER_PATH)
 
-
-    def simple_parsing(self, sentence):
-        nlp_sentence = self.nlp(sentence)
-        lemma = []
+    def advanced_parsing(self, text):
+        snlp_processed_json = self.snlp.annotate(text, properties={'annotators': 'tokenize,ssplit,pos,lemma,parse,ner',
+                                                                           'ner.applyFineGrained': 'false'})
         words = []
+        lemma = []
         pos_tags = []
-        conll_head = []
         entity_types = []
-        for word in nlp_sentence:
-            words.append(word.text)
-            lemma.append(word.lemma_)
-            pos_tags.append(word.tag_)
-            conll_head.append(word.head.i)
-            ent_type = word.ent_type_
-            if ent_type == 'PERSON':
-                ent_type = 'PER'
-            entity_types.append(ent_type)
-
-        return words, pos_tags, lemma, conll_head, entity_types
-
-    def coreNLP_annotation(self, sentence):
-        snlp_processed_json = self.snlp.annotate(sentence,
-                                                 properties={'annotators': 'tokenize,ssplit,pos,lemma,parse'})
+        penn_treebanks = []
+        dependency_parsing = []
+        sentences = []
+        texts = []
         if snlp_processed_json:
             snlp_processed = json.loads(snlp_processed_json)
-            treebank = re.sub(r'\n|\s+', ' ', snlp_processed['sentences'][0]['parse'])
-            dep_parse = ['{}/dep={}/gov={}'.format(dep['dep'], dep['dependent'] - 1, dep['governor'] - 1)
-                         for dep in snlp_processed['sentences'][0]['enhancedPlusPlusDependencies']]
-            return treebank, dep_parse
-        else:
-            return "", []
+            next_start = 0
+            for parsed in snlp_processed['sentences']:
+
+                penn_treebanks.append(re.sub(r'\n|\s+', ' ', parsed['parse']))
+                dependency_parsing.append(['{}/dep={}/gov={}'.format(dep['dep'], dep['dependent']-1, dep['governor']-1)
+                             for dep in parsed['enhancedPlusPlusDependencies']])
+                sentence_words = [token['word'] for token in parsed['tokens']]
+                words.extend(sentence_words)
+                pos_tags.extend([token['pos'] for token in parsed['tokens']])
+                lemma.extend([token['lemma'] for token in parsed['tokens']])
+                # TODO: ner similar to M2E2
+                entity_types.extend([self.ner_tags[token['ner']] if token['ner'] in self.ner_tags else token['ner']
+                                     for token in parsed['tokens']])
+
+                start = next_start
+                end = start + len(sentence_words)
+                next_start = end
+                text = ' '.join(sentence_words)
+                texts.append(text)
+                sentences.append({'start': start, 'end': end, 'text': text})
+
+                nlp_sentence = self.nlp(text)
+                # head.extend([word.head.i for word in nlp_sentence if word.text != '\''])
+
+        return {'sentences': sentences, 'text': ' '.join(texts), 'words': words, 'pos-tag': pos_tags, 'lemma': lemma,
+                'ner': entity_types, 'treebank': penn_treebanks, 'dep-parse': dependency_parsing}
 
     def chunking(self, words, tags):
         zipped = list(zip(words, tags))

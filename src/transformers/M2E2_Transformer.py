@@ -27,21 +27,17 @@ class M2e2Transformer(Transformer):
                 'text': text_sentence
             }]
 
-            # simple parsing - acquire words, lemma, pos-tangs and dependency heads
-            parsing = self.simple_parsing(text_sentence)
-            lemma = parsing[2]
-            words = parsing[0]
-            pos_tags = parsing[1]
-            conll_head = parsing[3]
+            parsing = self.advanced_parsing(text_sentence)
+            words = parsing['words']
+            lemma = parsing['lemma']
+            pos_tags = parsing['pos-tag']
+            # head = parsing['head']
 
-            # chunking
-            chunks = [self.chunking(words[s['start']: s['end']], pos_tags[s['start']: s['end']]) for s in sentences]
-
-            # advanced parsing - acquire treebank and dependency parsing
-            # zip(*list) unzips a list o tuples
-            annotations = list(zip(*[self.coreNLP_annotation(s['text']) for s in sentences]))
-            penn_treebanks = annotations[0]
-            dependency_parsing = annotations[1]
+            # sentence centric
+            penn_treebanks = [parsing['treebank']]
+            dependency_parsing = [parsing['dep-parse']]
+            chunks = [self.chunking(parsing['words'], parsing['pos-tag'])]
+            no_of_sentences = len(sentences)
 
             # adjust entities
             entity_types = {}
@@ -64,13 +60,13 @@ class M2e2Transformer(Transformer):
             new_instance = {
                 'origin': self.origin,
                 'id': new_instance_id,
-                'no-of-sentences': 1,
+                'no-of-sentences': no_of_sentences,
                 'sentences': sentences,
                 'text': text_sentence,
                 'words': words,
                 'lemma': lemma,
                 'pos-tags': pos_tags,
-                'head': conll_head,
+                # 'head': head,
                 'golden-entity-mentions': instance['golden-entity-mentions'],
                 'golden-event-mentions': instance['golden-event-mentions'],
                 'penn-treebank': penn_treebanks,

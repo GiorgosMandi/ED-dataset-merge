@@ -43,31 +43,22 @@ class AceTransformer(Transformer):
         ace_jsons = utilities.read_json(self.path)
         for instance in tqdm(ace_jsons):
             i += 1
-            no_of_sentences = 1
 
             new_instance_id = self.id_base + str(i)
             text_sentence = instance['sentence']
-            sentences = [{
-                'start': 0,
-                'end': len(instance['words']),
-                'text': text_sentence
-            }]
 
-            # simple parsing - acquire words, lemma, pos-tangs and dependency heads
-            parsing = self.simple_parsing(text_sentence)
-            lemma = parsing[2]
-            words = parsing[0]
-            pos_tags = parsing[1]
-            conll_head = parsing[3]
+            parsing = self.advanced_parsing(text_sentence)
+            sentences = parsing['sentences']
+            words = parsing['words']
+            lemma = parsing['lemma']
+            pos_tags = parsing['pos-tag']
+            # head = parsing['head']
 
-            # chunking
-            chunks = [self.chunking(words[s['start']: s['end']], pos_tags[s['start']: s['end']]) for s in sentences]
-
-            # advanced parsing - acquire treebank and dependency parsing
-            # zip(*list) unzips a list o tuples
-            annotations = list(zip(*[self.coreNLP_annotation(s['text']) for s in sentences]))
-            penn_treebanks = annotations[0]
-            dependency_parsing = annotations[1]
+            # sentence centric
+            penn_treebanks = [parsing['treebank']]
+            dependency_parsing = [parsing['dep-parse']]
+            chunks = [self.chunking(parsing['words'], parsing['pos-tag'])]
+            no_of_sentences = len(sentences)
 
             # adjust entities
             entities = []
@@ -98,7 +89,7 @@ class AceTransformer(Transformer):
                 'words': words,
                 'lemma': lemma,
                 'pos-tags': pos_tags,
-                'head': conll_head,
+                # 'head': head,
                 'golden-entity-mentions': entities,
                 'golden-event-mentions': instance['golden-event-mentions'],
                 'penn-treebank': penn_treebanks,

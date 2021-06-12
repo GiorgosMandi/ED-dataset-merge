@@ -21,37 +21,23 @@ class RamsTransformer(Transformer):
         for instance in tqdm(rams_jsons):
             i += 1
             new_instance_id = self.id_base + str(i) + "-" + instance['doc_key']
-            no_of_sentences = len(instance['sentences'])
-
             # parsing sentences
-            sentences = []
-            next_start = 0
-            for s in instance['sentences']:
-                start = next_start
-                end = start + len(s)
-                next_start = end
-                text = ' '.join(s)
-                sentences.append({'start': start, 'end': end, 'text': text})
+            all_sentences = " ".join([t for s in instance['sentences'] for t in s])
 
-            # combine sentences into simple text
-            text_sentence = ' '.join([s['text'] for s in sentences])
+            parsing = self.advanced_parsing(all_sentences)
+            words = parsing['words']
+            lemma = parsing['lemma']
+            pos_tags = parsing['pos-tag']
+            head = parsing['head']
+            entity_types = parsing['ner']
+            sentences = parsing['sentences']
+            text_sentence = parsing['text']
 
-            # simple parsing - acquire words, lemma, pos-tangs and dependency heads
-            parsing = self.simple_parsing(text_sentence)
-            lemma = parsing[2]
-            words = parsing[0]
-            pos_tags = parsing[1]
-            conll_head = parsing[3]
-            entity_types = parsing[4]
-
-            # chunking
-            chunks = [self.chunking(words[s['start']: s['end']], pos_tags[s['start']: s['end']]) for s in sentences]
-
-            # advanced parsing - acquire treebank and dependency parsing
-            # zip(*list) unzips a list o tuples
-            annotations = list(zip(*[self.coreNLP_annotation(s['text']) for s in sentences]))
-            penn_treebanks = annotations[0]
-            dependency_parsing = annotations[1]
+            # sentence centric
+            penn_treebanks = parsing['treebank']
+            dependency_parsing = parsing['dep-parse']
+            chunks = self.chunking(parsing['words'], parsing['pos-tag'])
+            no_of_sentences = len(sentences)
 
             # process entities
             entities = []
@@ -103,7 +89,7 @@ class RamsTransformer(Transformer):
                 'words': words,
                 'lemma': lemma,
                 'pos-tags': pos_tags,
-                'head': conll_head,
+                'head': head,
                 'golden-entity-mentions': entities,
                 'golden-event-mentions': events_triples,
                 'penn-treebank': penn_treebanks,
