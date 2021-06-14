@@ -8,7 +8,10 @@ import argparse
 from os import path
 
 import os
-
+# TODO:
+#   -NER+BIOS
+#   -check NER and everything
+#   -write in batches
 parser = argparse.ArgumentParser(description="Give arguments")
 parser.add_argument('-base', metavar='base_path', type=str, help='Path of working folder')
 parser.add_argument('-dt', metavar='base_path', type=str, help='witch dataset to transform')

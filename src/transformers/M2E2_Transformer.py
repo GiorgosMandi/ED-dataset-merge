@@ -75,13 +75,24 @@ class M2e2Transformer(Transformer):
             events = []
             if len(instance['golden-event-mentions']) > 0:
                 for event in instance['golden-event-mentions']:
-                    event_type = event['event_type']
-                    event['event_type'] = self.events_mapper[event_type]
+                    event_type = self.events_mapper[event['event_type']]
+                    event['event_type'] = event_type
+                    arguments = []
                     for arg in event['arguments']:
                         role = arg['role'].lower()
-                        arg['role'] = self.roles_mapper[role]
-                        arg['entity-type'] = entity_types[arg['text']]
-                        arg['detailed-entity-type'] = ""
+                        role = self.roles_mapper[role]
+
+                        # there are also inconsistencies between arguments' text and entities' text
+                        text_in_dataset = ' '.join(instance['words'][arg['start']: arg['end']])
+                        corresponding_entity = text_to_entity[text_in_dataset]
+                        arguments.append({'start': corresponding_entity['start'],
+                                          'end': corresponding_entity['end'],
+                                          'text': corresponding_entity['text'],
+                                          'role': role,
+                                          'entity-type': corresponding_entity['entity-type'],
+                                          'existing-entity-type': corresponding_entity['existing-entity-type']
+                                          })
+                    events.append({'arguments': arguments, 'trigger': event['trigger'], 'event-type': event_type})
 
             new_instance = {
                 'origin': self.origin,
@@ -102,3 +113,5 @@ class M2e2Transformer(Transformer):
             new_instances.append(new_instance)
         return new_instances
 
+    def adjust_to_parsed(self, token):
+        return token.replace('’', r"'").replace('‘', "'").replace("(", "-LRB-").replace(")", "-RRB-")
