@@ -14,7 +14,7 @@ class RamsTransformer(Transformer):
         self.origin = "RAMS"
 
     # transform dataset to the common schema
-    def transform(self):
+    def transform(self, output_path):
         new_instances = []
         i = -1
         rams_jsons = utilities.read_jsonlines(self.rams_path)
@@ -22,21 +22,29 @@ class RamsTransformer(Transformer):
             i += 1
             new_instance_id = self.id_base + str(i) + "-" + instance['doc_key']
             # parsing sentences
-            all_sentences = " ".join([t for s in instance['sentences'] for t in s])
+            text_sentences = " ".join([t for s in instance['sentences'] for t in s])
+            sentences = []
+            words = []
+            lemma = []
+            pos_tags = []
+            entity_types = []
+            chunks = []
+            penn_treebanks = []
+            dependency_parsing = []
+            for sentence in instance['sentences']:
+                sentence = ' '.join(sentence)
+                parsing = self.advanced_parsing(sentence)
+                words.extend(parsing['words'])
+                lemma.extend(parsing['lemma'])
+                pos_tags.extend(parsing['pos-tag'])
+                entity_types.extend(parsing['ner'])
+                sentences.extend(parsing['sentences'])
 
-            parsing = self.advanced_parsing(all_sentences)
-            words = parsing['words']
-            lemma = parsing['lemma']
-            pos_tags = parsing['pos-tag']
-            # head = parsing['head']
-            entity_types = parsing['ner']
-            sentences = parsing['sentences']
-            text_sentence = parsing['text']
+                # sentence centric
+                penn_treebanks.extend(parsing['treebank'])
+                dependency_parsing.extend(parsing['dep-parse'])
+                chunks.extend([self.chunking(parsing['words'], parsing['pos-tag'])])
 
-            # sentence centric
-            penn_treebanks = parsing['treebank']
-            dependency_parsing = parsing['dep-parse']
-            chunks = self.chunking(parsing['words'], parsing['pos-tag'])
             no_of_sentences = len(sentences)
 
             # process entities
@@ -85,7 +93,7 @@ class RamsTransformer(Transformer):
                 'id': new_instance_id,
                 'no-of-sentences': no_of_sentences,
                 'sentences': sentences,
-                'text': text_sentence,
+                'text': text_sentences,
                 'words': words,
                 'lemma': lemma,
                 'pos-tags': pos_tags,
@@ -97,5 +105,8 @@ class RamsTransformer(Transformer):
                 'chunks': chunks
             }
             new_instances.append(new_instance)
-        return new_instances
+            if len(new_instances) == self.batch_size:
+                utilities.write_json(new_instances, output_path)
+                new_instances = []
+        utilities.write_json(new_instances, output_path)
 
