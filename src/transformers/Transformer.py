@@ -24,8 +24,8 @@ class Transformer:
     def advanced_parsing(self, text):
         text = re.sub("-", " - ", text)
         snlp_processed_json = self.snlp.annotate(text, properties={'annotators': 'tokenize,ssplit,pos,lemma,parse,ner',
-                                                                   'timeout': '50000'})
-                                                                    # 'ner.applyFineGrained': 'false'})
+                                                                   'timeout': '50000',
+                                                                    'ner.applyFineGrained': 'false'})
         words = []
         lemma = []
         pos_tags = []
@@ -46,8 +46,23 @@ class Transformer:
                 words.extend(sentence_words)
                 pos_tags.extend([token['pos'] for token in parsed['tokens']])
                 lemma.extend([token['lemma'] for token in parsed['tokens']])
-                entity_types.extend([token['ner'] for token in parsed['tokens']])
 
+                # applying IOB to named entities
+                current_type = "O"
+                ner = []
+                for token in parsed['tokens']:
+                    token_ner = token['ner']
+                    if token_ner != "O":
+                        if current_type != "O" and current_type == token_ner:
+                            ner.append("I-" + current_type)
+                        else:
+                            current_type = token_ner
+                            ner.append("B-" + current_type)
+                    else:
+                        current_type = "O"
+                        ner.append("O")
+
+                entity_types.extend(ner)
                 start = next_start
                 end = start + len(sentence_words)
                 next_start = end
@@ -65,8 +80,6 @@ class Transformer:
         zipped = list(zip(words, tags))
         s_chunks = self.chunker.parseIOB(zipped)
         return [c[1:] for c in s_chunks]
-
-
 
     @abstractmethod
     def transform(self):
