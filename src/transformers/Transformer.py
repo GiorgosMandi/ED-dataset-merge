@@ -20,6 +20,7 @@ class Transformer:
         self.chunker = BigramChunker()
         self.roles_mapper = utilities.read_json(ROLES_MAPPER_PATH)
         self.events_mapper = utilities.read_json(EVENTS_MAPPER_PATH)
+        self.batch_size = 50
 
     def advanced_parsing(self, text):
         text = re.sub("-", " - ", text)
@@ -82,5 +83,5 @@ class Transformer:
         return [c[1:] for c in s_chunks]
 
     @abstractmethod
-    def transform(self):
+    def transform(self, output_path):
         pass

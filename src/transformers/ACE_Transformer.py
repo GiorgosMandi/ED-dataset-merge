@@ -38,7 +38,7 @@ class AceTransformer(Transformer):
         utilities.write_iterable(event_paths, events)
 
     # transform dataset to the common schema
-    def transform(self):
+    def transform(self, output_path):
         new_instances = []
         i = -1
         ace_jsons = utilities.read_json(self.path)
@@ -53,7 +53,7 @@ class AceTransformer(Transformer):
             words = parsing['words']
             lemma = parsing['lemma']
             pos_tags = parsing['pos-tag']
-            entity_types= parsing['ner']
+            entity_types = parsing['ner']
 
             # sentence centric
             penn_treebanks = [parsing['treebank']]
@@ -100,4 +100,7 @@ class AceTransformer(Transformer):
                 'chunks': chunks
             }
             new_instances.append(new_instance)
-        return new_instances
+            if len(new_instances) == self.batch_size:
+                utilities.write_json(new_instances, output_path)
+                new_instances = []
+        utilities.write_json(new_instances, output_path)

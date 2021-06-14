@@ -39,7 +39,7 @@ class EDDTransformer(Transformer):
         utilities.write_iterable(roles_path, roles)
         utilities.write_iterable(event_paths, events)
 
-    def transform(self):
+    def transform(self, output_path):
         new_instances = []
         i = -1
         for file in tqdm(os.listdir(self.path)):
@@ -64,7 +64,6 @@ class EDDTransformer(Transformer):
                     words.extend(parsing['words'])
                     pos_tags.extend(parsing['pos-tag'])
                     lemma.extend(parsing['lemma'])
-                    # conll_head.extend(parsing['head'])
                     entity_types.extend(parsing['ner'])
                     sentences.extend(parsing['sentences'])
                     penn_treebanks.extend(parsing['treebank'])
@@ -127,4 +126,7 @@ class EDDTransformer(Transformer):
                     'chunks': chunks
                 }
                 new_instances.append(new_instance)
-        return new_instances
+                if len(new_instances) == self.batch_size:
+                    utilities.write_json(new_instances, output_path)
+                    new_instances = []
+        utilities.write_json(new_instances, output_path)

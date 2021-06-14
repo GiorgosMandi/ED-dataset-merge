@@ -1,7 +1,7 @@
 from tqdm import tqdm
 from .Transformer import Transformer
 from ..utils import utilities
-import re
+
 
 class M2e2Transformer(Transformer):
 
@@ -16,7 +16,7 @@ class M2e2Transformer(Transformer):
     # WARNING: This dataset contains many errors and there is no consistency:
     #   - in its word list, contains characters that  do not exist in the actual sentence
     #   - sometimes the '-' separated words are treated as one word and other times as two
-    def transform(self):
+    def transform(self, output_path):
         new_instances = []
         i = -1
         m2e2_jsons = utilities.read_json(self.m2e2_path)
@@ -111,7 +111,10 @@ class M2e2Transformer(Transformer):
                 'chunks': chunks
             }
             new_instances.append(new_instance)
-        return new_instances
+            if len(new_instances) == self.batch_size:
+                utilities.write_json(new_instances, output_path)
+                new_instances = []
+        utilities.write_json(new_instances, output_path)
 
     def adjust_to_parsed(self, token):
         return token.replace('’', r"'").replace('‘', "'").replace("(", "-LRB-").replace(")", "-RRB-")

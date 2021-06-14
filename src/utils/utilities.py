@@ -14,7 +14,7 @@ def read_json(path):
 
 
 def write_json(mappings, path):
-    with open(path, 'w+') as json_file:
+    with open(path, 'a+') as json_file:
         for mapping in mappings:
             json.dump(mapping, json_file)
             json_file.write('\n')
