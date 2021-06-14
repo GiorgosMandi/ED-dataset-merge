@@ -1,7 +1,7 @@
 from tqdm import tqdm
 from .Transformer import Transformer
 from ..utils import utilities
-
+import re
 
 class M2e2Transformer(Transformer):
 
@@ -13,6 +13,9 @@ class M2e2Transformer(Transformer):
         self.origin = "M2E2"
 
     # transform dataset to the common schema
+    # WARNING: This dataset contains many errors and there is no consistency:
+    #   - in its word list, contains characters that  do not exist in the actual sentence
+    #   - sometimes the '-' separated words are treated as one word and other times as two
     def transform(self):
         new_instances = []
         i = -1
@@ -21,17 +24,13 @@ class M2e2Transformer(Transformer):
             i += 1
             new_instance_id = self.id_base + str(i) + "-" + instance['sentence_id']
             text_sentence = instance['sentence']
-            sentences = [{
-                'start': instance['sentence_start'],
-                'end': instance['sentence_end'],
-                'text': text_sentence
-            }]
 
             parsing = self.advanced_parsing(text_sentence)
             words = parsing['words']
             lemma = parsing['lemma']
             pos_tags = parsing['pos-tag']
-            # head = parsing['head']
+            entity_types = parsing['ner']
+            sentences = parsing['sentences']
 
             # sentence centric
             penn_treebanks = [parsing['treebank']]
@@ -40,13 +39,40 @@ class M2e2Transformer(Transformer):
             no_of_sentences = len(sentences)
 
             # adjust entities
-            entity_types = {}
+            text_to_entity = {}
+            entities = []
             for j, entity in enumerate(instance['golden-entity-mentions']):
-                entity['entity-id'] = new_instance_id + "-entity-" + str(j)
-                entity['detailed-entity-type'] = ""
-                entity_types[entity['text']] = entity['entity-type']
+                entity_id = new_instance_id + "-entity-" + str(j)
+                existing_ner = entity['entity-type']
+
+                # to tackle the inconsistencies in the list of words of the dataset,
+                # we find the text to the words of our list and make pointers to thees
+                entity_first_word = instance['words'][entity['start']]
+                entity_first_word = entity_first_word.split("-")[0] if "-" in entity_first_word else entity_first_word
+                entity_first_word = self.adjust_to_parsed(entity_first_word)
+
+                entity_last_word = instance['words'][entity['end']-1]
+                entity_last_word = entity_last_word.split("-")[-1] if "-" in entity_last_word else entity_last_word
+                entity_last_word = self.adjust_to_parsed(entity_last_word)
+
+                # the first word after start that matches
+                start = words[entity['start']:].index(entity_first_word) + entity['start']
+                end = words[start:].index(entity_last_word) + start + 1
+                text = ' '.join(words[start: end])
+                new_ner = utilities.most_frequent(' '.join(entity_types[start: end]))
+                new_entity = {'entity-id': entity_id,
+                              'start': start,
+                              'end': end,
+                              'text': text,
+                              'entity-type': new_ner,
+                              'existing-entity-type': existing_ner
+                              }
+                entities.append(new_entity)
+                text_in_dataset = ' '.join(instance['words'][entity['start']: entity['end']])
+                text_to_entity[text_in_dataset] = new_entity
 
             # adjust events
+            events = []
             if len(instance['golden-event-mentions']) > 0:
                 for event in instance['golden-event-mentions']:
                     event_type = event['event_type']
@@ -66,9 +92,9 @@ class M2e2Transformer(Transformer):
                 'words': words,
                 'lemma': lemma,
                 'pos-tags': pos_tags,
-                # 'head': head,
-                'golden-entity-mentions': instance['golden-entity-mentions'],
-                'golden-event-mentions': instance['golden-event-mentions'],
+                'ner': entity_types,
+                'golden-entity-mentions': entities,
+                'golden-event-mentions': events,
                 'penn-treebank': penn_treebanks,
                 "dependency-parsing": dependency_parsing,
                 'chunks': chunks

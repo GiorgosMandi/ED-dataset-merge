@@ -39,7 +39,6 @@ class EDDTransformer(Transformer):
         utilities.write_iterable(roles_path, roles)
         utilities.write_iterable(event_paths, events)
 
-
     def transform(self):
         new_instances = []
         i = -1
@@ -85,6 +84,7 @@ class EDDTransformer(Transformer):
                         event_type = self.events_mapper[event_type]
                     else:
                         value = result['value']
+                        # WARNING: start and end do not point to the exact word
                         entity_start = value['start']
                         entity_end = value['end']
                         entity_text = value['text']
@@ -94,12 +94,12 @@ class EDDTransformer(Transformer):
                         else:
                             entity_id = new_instance_id + "-" + str(i)
                             types = set(entity_types[entity_start: entity_end])
-                            entity_type = ""
+                            entity_type = "O"
                             if len(types) > 0:
                                 entity_type = utilities.most_frequent(entity_types[entity_start: entity_end])
 
                             entity = {'start': entity_start, 'end': entity_end, 'text': entity_text, 'entity-id': entity_id,
-                                      'entity-type': entity_type, 'detailed-entity-type': ""}
+                                      'entity-type': entity_type, 'existing-entity-type': ""}
                             argument = entity.copy()
                             if role in self.roles_mapper:
                                 role = self.roles_mapper[role]
@@ -119,7 +119,7 @@ class EDDTransformer(Transformer):
                     'words': words,
                     'lemma': lemma,
                     'pos-tags': pos_tags,
-                    # 'head': conll_head,
+                    'ner': entity_types,
                     'golden-entity-mentions': entities,
                     'golden-event-mentions': events_triples,
                     'penn-treebank': penn_treebanks,

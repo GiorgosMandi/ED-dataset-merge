@@ -5,6 +5,7 @@ from ..utils import utilities
 EVENT_TYPE_MAPPER_PATH = "data/ACE/ACE_events_mapping.json"
 ROLES_MAPPER_PATH = "data/ACE/ACE_roles_mapping.json"
 
+
 class AceTransformer(Transformer):
 
     def __init__(self, ace_path, stanford_core_path):
@@ -52,7 +53,7 @@ class AceTransformer(Transformer):
             words = parsing['words']
             lemma = parsing['lemma']
             pos_tags = parsing['pos-tag']
-            # head = parsing['head']
+            entity_types= parsing['ner']
 
             # sentence centric
             penn_treebanks = [parsing['treebank']]
@@ -62,11 +63,14 @@ class AceTransformer(Transformer):
 
             # adjust entities
             entities = []
+            text_to_entity = {}
             for entity in instance["golden-entity-mentions"]:
-                entity_type = entity["entity-type"].split(":")
+                existing_entity_type = entity["entity-type"]
+                entity_type = utilities.most_frequent(entity_types[entity['start']: entity['end']])
+                text_to_entity[entity['text']] = entity_type
                 new_entity = {'start': entity['start'], 'end': entity['end'], 'text': entity['text'],
-                              'entity-id': entity['entity_id'], "entity-type": entity_type[0],
-                              "detailed-entity-type":  entity_type[1]}
+                              'entity-id': entity['entity_id'], "entity-type": entity_type,
+                              "existing-entity-type":  existing_entity_type}
                 entities.append(new_entity)
 
             # adjust events
@@ -74,9 +78,8 @@ class AceTransformer(Transformer):
                 processed_event = self.process_event(event['event_type'])
                 event['event_type'] = self.event_types_mapper[processed_event]
                 for arg in event['arguments']:
-                    entity_type = arg["entity-type"].split(":")
-                    arg["entity-type"] = entity_type[0]
-                    arg["detailed-entity-type"] = entity_type[1]
+                    arg["existing-entity-type"] = arg["entity-type"]
+                    arg["entity-type"] = text_to_entity[arg['text']]
                     role = arg['role']
                     arg["role"] = self.roles_mapper[role]
 
@@ -89,7 +92,7 @@ class AceTransformer(Transformer):
                 'words': words,
                 'lemma': lemma,
                 'pos-tags': pos_tags,
-                # 'head': head,
+                'ner': entity_types,
                 'golden-entity-mentions': entities,
                 'golden-event-mentions': instance['golden-event-mentions'],
                 'penn-treebank': penn_treebanks,

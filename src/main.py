@@ -26,7 +26,7 @@ m2e2_path = M2E2_dir_path + '/article_0816_filter.json'
 ace_path = ACE_dir_path + '/ace.json'
 
 core_nlp_path = 'model/stanford-corenlp-full-2018-10-05'
-output_path = 'data/instances.json'
+output_path = 'data/instances.jsonlines'
 
 instances = []
 if args.dt == "rams" or args.dt == "all":
@@ -62,7 +62,7 @@ elif args.dt == "ace" or args.dt == "all":
 
     instances.extend(transformer.transform())
 
-# utilities.write_json(instances, output_path)
+utilities.write_json(instances, output_path)
 
 
 print("done")

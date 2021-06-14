@@ -28,7 +28,7 @@ class RamsTransformer(Transformer):
             words = parsing['words']
             lemma = parsing['lemma']
             pos_tags = parsing['pos-tag']
-            head = parsing['head']
+            # head = parsing['head']
             entity_types = parsing['ner']
             sentences = parsing['sentences']
             text_sentence = parsing['text']
@@ -50,7 +50,7 @@ class RamsTransformer(Transformer):
                 # multiple words may result to multiple types - pick the most frequent type
                 entity_type = utilities.most_frequent(entity_types[start: end])
                 new_entity = {'start': start, 'end': end, 'text': text, 'entity-id': entity_id,
-                              'entity-type': entity_type, 'detailed-entity-type': ""}
+                              'entity-type': entity_type, 'existing-entity-type': ""}
                 entities.append(new_entity)
 
             # process trigger
@@ -75,7 +75,7 @@ class RamsTransformer(Transformer):
                 arg_role = re.split("\d", triple[2])[-1]
                 arg_role = self.roles_mapper[arg_role]
                 argument = {'start': arg_start, 'end': arg_end, 'text': text, 'role': arg_role,
-                            'entity-type': entity_type, 'detailed-entity-type': ""}
+                            'entity-type': entity_type, 'existing-entity-type': ""}
                 arguments.append(argument)
 
             events_triples.append({'arguments': arguments, 'trigger': trigger, 'event-type': event_type})
@@ -89,7 +89,7 @@ class RamsTransformer(Transformer):
                 'words': words,
                 'lemma': lemma,
                 'pos-tags': pos_tags,
-                'head': head,
+                'ner': entity_types,
                 'golden-entity-mentions': entities,
                 'golden-event-mentions': events_triples,
                 'penn-treebank': penn_treebanks,

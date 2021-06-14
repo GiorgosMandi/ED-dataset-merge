@@ -13,9 +13,11 @@ def read_json(path):
     return data
 
 
-def write_json(mapping, path):
+def write_json(mappings, path):
     with open(path, 'w+') as json_file:
-        json.dump(mapping, json_file)
+        for mapping in mappings:
+            json.dump(mapping, json_file)
+            json_file.write('\n')
 
 
 def read_jsonlines(path):
