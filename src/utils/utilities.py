@@ -4,7 +4,8 @@ import numpy as np
 
 
 def most_frequent(List):
-    return max(set(List), key=List.count)
+    unbios = [e[2:] if len(e) > 2 else e for e in List]
+    return max(set(unbios), key=List.count)
 
 
 def read_json(path):

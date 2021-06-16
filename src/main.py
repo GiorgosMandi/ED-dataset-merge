@@ -21,7 +21,7 @@ ACE_dir_path = 'data/ACE'
 
 rams_path = RAMS_dir_path + '/rams_100.jsonlines'
 edd_path = EDD_dir_path + '/jsons/'
-m2e2_path = M2E2_dir_path + '/M2E2_tmp.json'
+m2e2_path = M2E2_dir_path + '/article_0816_filter.json'
 ace_path = ACE_dir_path + '/ace.json'
 
 core_nlp_path = 'model/stanford-corenlp-full-2018-10-05'

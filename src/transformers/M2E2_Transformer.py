@@ -33,9 +33,9 @@ class M2e2Transformer(Transformer):
             sentences = parsing['sentences']
 
             # sentence centric
-            penn_treebanks = [parsing['treebank']]
-            dependency_parsing = [parsing['dep-parse']]
-            chunks = [self.chunking(parsing['words'], parsing['pos-tag'])]
+            penn_treebanks = parsing['treebank']
+            dependency_parsing = parsing['dep-parse']
+            chunks = self.chunking(parsing['words'], parsing['pos-tag'])
             no_of_sentences = len(sentences)
 
             # adjust entities
@@ -59,7 +59,7 @@ class M2e2Transformer(Transformer):
                 start = words[entity['start']:].index(entity_first_word) + entity['start']
                 end = words[start:].index(entity_last_word) + start + 1
                 text = ' '.join(words[start: end])
-                new_ner = utilities.most_frequent(' '.join(entity_types[start: end]))
+                new_ner = utilities.most_frequent(entity_types[start: end])
                 new_entity = {'entity-id': entity_id,
                               'start': start,
                               'end': end,

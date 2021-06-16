@@ -3,7 +3,6 @@
     "person": "person",
     "agent": "agent",
     "entity": "observedentity",
-
     "communicator": "communicator",
     "transporter": "transporter",
     "recipient": "recipient",
@@ -46,7 +45,6 @@
     "placeofemployment": "placeofemployment",
     "vehicle": "vehicle",
     "arrested": "arrested",
-
     "property": "property",
     "location": "place",
     "location adverb" : "place",

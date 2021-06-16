@@ -25,8 +25,8 @@ class Transformer:
     def advanced_parsing(self, text):
         text = re.sub("-", " - ", text)
         snlp_processed_json = self.snlp.annotate(text, properties={'annotators': 'tokenize,ssplit,pos,lemma,parse,ner',
-                                                                   'timeout': '50000',
-                                                                    'ner.applyFineGrained': 'false'})
+                                                                   'timeout': '50000'})
+                                                                    # 'ner.applyFineGrained': 'false'})
         words = []
         lemma = []
         pos_tags = []
