@@ -1,6 +1,6 @@
 # ED-dataset-merge
 
-This project goal is to merge four well-known Event-Detection datasets into one. These datasets are the following:
+This project's goal is to merge four well-known Event-Detection datasets into one. These datasets are the following:
 
   - [RAMS](https://nlp.jhu.edu/rams/)
   - [M2E2](https://github.com/limanling/m2e2)
