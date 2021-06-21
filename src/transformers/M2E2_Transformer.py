@@ -35,7 +35,7 @@ class M2e2Transformer(Transformer):
             # sentence centric
             penn_treebanks = parsing['treebank']
             dependency_parsing = parsing['dep-parse']
-            chunks = self.chunking(parsing['words'], parsing['pos-tag'])
+            chunks = parsing['chunks']
             no_of_sentences = len(sentences)
 
             # adjust entities

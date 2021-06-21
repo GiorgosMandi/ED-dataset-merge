@@ -56,9 +56,9 @@ class AceTransformer(Transformer):
             entity_types = parsing['ner']
 
             # sentence centric
-            penn_treebanks = [parsing['treebank']]
-            dependency_parsing = [parsing['dep-parse']]
-            chunks = [self.chunking(parsing['words'], parsing['pos-tag'])]
+            penn_treebanks = parsing['treebank']
+            dependency_parsing = parsing['dep-parse']
+            chunks = parsing['chunks']
             no_of_sentences = len(sentences)
 
             # adjust entities

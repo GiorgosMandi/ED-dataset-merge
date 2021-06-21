@@ -68,7 +68,7 @@ class EDDTransformer(Transformer):
                     sentences.extend(parsing['sentences'])
                     penn_treebanks.extend(parsing['treebank'])
                     dependency_parsing.extend(parsing['dep-parse'])
-                    chunks.extend([self.chunking(parsing['words'], parsing['pos-tag'])])
+                    chunks.extend(parsing['chunks'])
 
                 no_of_sentences = len(sentences)
 
