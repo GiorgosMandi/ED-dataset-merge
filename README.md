@@ -1,6 +1,6 @@
 # ED-dataset-merge
 
-This project goal is to merge four well-known Event-Detection datasets into one. These datasets are the following:
+This project's goal is to merge four well-known Event-Detection datasets into one. These datasets are the following:
 
   - [RAMS](https://nlp.jhu.edu/rams/)
   - [M2E2](https://github.com/limanling/m2e2)
@@ -96,7 +96,7 @@ The final product will consist of jsonlines with the following schema:
         ["ROOT/dep=4/gov=-1", "case/dep=0/gov=1", "nmod:in/dep=1/gov=4", "punct/dep=2/gov=4", "nsubj/dep=3/gov=4", "det/dep=5/gov=6", "dobj/dep=6/gov=4", "acl/dep=7/gov=6", "case/dep=8/gov=11", "compound/dep=9/gov=11", "compound/dep=10/gov=11", "nmod:by/dep=11/gov=7", "acl/dep=12/gov=11", "compound/dep=13/gov=14", "dobj/dep=14/gov=12", "nsubj:xsubj/dep=14/gov=18", "case/dep=15/gov=16", "nmod:in/dep=16/gov=12", "mark/dep=17/gov=18", "xcomp/dep=18/gov=12", "dobj/dep=19/gov=18", "case/dep=20/gov=21", "nmod:to/dep=21/gov=18", "punct/dep=22/gov=18", "compound/dep=23/gov=24", "parataxis/dep=24/gov=18"]
     ], 
     "chunks": [
-        ["IN", "O"], ["NNP", "B-NP"], [",", "O"], ["NNS", "B-NP"], ["VBD", "O"], ["DT", "B-NP"], ["NN", "I-NP"], ["VBN", "O"], ["IN", "O"], ["NN", "B-NP"], ["NNP", "I-NP"], ["NNP", "I-NP"], ["VBG", "O"], ["NN", "B-NP"], ["NNS", "I-NP"], ["IN", "O"], ["NNP", "B-NP"], ["TO", "O"], ["VB", "O"], ["NN", "B-NP"], ["TO", "O"], ["JJ", "B-NP"], [":", "O"], ["NN", "B-NP"], ["NNS", "I-NP"]
+        [["IN", "O"], ["NNP", "B-NP"], [",", "O"], ["NNS", "B-NP"], ["VBD", "O"], ["DT", "B-NP"], ["NN", "I-NP"], ["VBN", "O"], ["IN", "O"], ["NN", "B-NP"], ["NNP", "I-NP"], ["NNP", "I-NP"], ["VBG", "O"], ["NN", "B-NP"], ["NNS", "I-NP"], ["IN", "O"], ["NNP", "B-NP"], ["TO", "O"], ["VB", "O"], ["NN", "B-NP"], ["TO", "O"], ["JJ", "B-NP"], [":", "O"], ["NN", "B-NP"], ["NNS", "I-NP"]]
     ]
 }
 
