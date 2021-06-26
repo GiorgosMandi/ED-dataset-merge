@@ -1,13 +1,61 @@
-# ED-dataset-merge
+# EventDetectionDataset-Unifier
 
-This project's goal is to merge four well-known Event-Detection datasets into one. These datasets are the following:
+This is an ETL tool which goal is to transform four well-known Event-Detection datasets under a unified common schema. These four datasets are the following:
 
   - [RAMS](https://nlp.jhu.edu/rams/)
   - [M2E2](https://github.com/limanling/m2e2)
   - [ACE2005](https://catalog.ldc.upenn.edu/LDC2006T06) after being preprocessed by [ace2005-preprocessing](https://github.com/nlpcl-lab/ace2005-preprocessing)
   - Event Extraction Annotated Data from EMM.
 
-The final product will consist of jsonlines with the following schema:
+## Build Instructions
+    
+First users need to download Standford's CoreNLP model. You can find more information about CoreNLP in its [repository](https://github.com/stanfordnlp/CoreNLP).
+To download it you can run:
+
+```shell script
+$ wget http://nlp.stanford.edu/software/stanford-corenlp-full-2018-10-05.zip -O stanford-corenl p.zip
+$ unzip stanford-corenlp
+```
+
+Then, install requirements using:
+
+    $ pip install -r requirements.txt
+
+
+## Execution
+
+To execute  *EventDetectionDataset-Unifier*, users must provide some arguments. There is two types of input arguments, execution arguments 
+and dataset related arguments. 
+
+The **Execution Arguments** are the following:
+
+- *-coreNLP path/to/coreNLP_directory*:  Path to the directory of CoreNLP. (Required)
+- *-out path/to/output_directory*: Path to the output directory. The results will be stored in `instances.json` file which will be created inside `path/to/output_directory`. 
+                                    **WARNING**:  *EventDetectionDataset-Unifier* opens this file in append mode, so in case it already exists, the results will be appended to its existing content. (Required)
+- *-memory X*: The size of heap memory to provide to coreNLP.  X must be an integer.  (Optional, default value is 3)
+- *-h*:        Print instructions.
+
+The **Datasets Arguments** are the following:
+
+- *-ace /path/to/ace.json*: This will instantiate an AceTransformer to transform Ace dataset instances into the common schema. 
+                            Reminding that the dataset must have first been pre-processed by  [ace2005-preprocessing](https://github.com/nlpcl-lab/ace2005-preprocessing)
+                            
+- *-emm /path/to/emm*:      This will instantiate an EmmTransformer to transform EMM dataset instances into the common schema. 
+                            The path can point to either a JSON file or to a directory containing multiple JSON files.
+
+- *-rams /path/to/rams*:    This will instantiate a RamsTransformer to transform RAMS dataset instances into the common schema. 
+
+- *-m2e2 /path/to/m2e2*:    This will instantiate an M2e2Transformer to transform M2E2 dataset instances into the common schema.
+
+Users can provide multiple Dataset Arguments in order to transform multiple dataset in a single run. At least one Dataset Arguments must be provided.
+
+Finally, to execute run something like:
+ 
+    $ python -m src.main  -coreNLP path/to/coreNLP_directory -out path/to/output_directory -memory 1 -ace data/Ace.json -emm data/EMM/emm.json 
+
+## Schema
+
+The output will consist of JSONlines of the following schema:
 
 ```json
 
