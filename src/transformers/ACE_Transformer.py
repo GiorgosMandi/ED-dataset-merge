@@ -72,13 +72,12 @@ class AceTransformer(Transformer):
 
             # adjust events
             for event in instance['golden-event-mentions']:
-                processed_event = self.process_event(event['event_type'])
-                event['event_type'] = self.event_types_mapper[processed_event]
+                event['event_type'] = self.get_event_type(event['event_type'])
                 for arg in event['arguments']:
                     arg["existing-entity-type"] = arg["entity-type"]
                     arg["entity-type"] = text_to_entity[arg['text']]
                     role = arg['role']
-                    arg["role"] = self.roles_mapper[role]
+                    arg["role"] = self.get_role(role)
 
             new_instance = {
                 'origin': self.origin,
@@ -101,3 +100,12 @@ class AceTransformer(Transformer):
                 utilities.write_json(new_instances, output_path)
                 new_instances = []
         utilities.write_json(new_instances, output_path)
+        self.log.info("Transformation of ACE completed in " + str(round(time.monotonic() - start_time, 3)) + "sec")
+
+    def get_event_type(self, event_type):
+        event_type = self.process_event(event_type)
+        return utilities.find_most_similar(event_type, self.events)
+
+    def get_role(self, role):
+        return utilities.find_most_similar(role, self.roles)
+
