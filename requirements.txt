@@ -1,0 +1,5 @@
+nltk==3.4.5
+tqdm==4.49.0
+numpy==1.19.5
+stanfordcorenlp==3.9.1.1
+spacy==2.3.5
