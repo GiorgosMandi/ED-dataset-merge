@@ -1,27 +1,21 @@
 from .Transformer import Transformer
 from tqdm import tqdm
 from ..utils import utilities
-
-EVENT_TYPE_MAPPER_PATH = "data/ACE/ACE_events_mapping.json"
-ROLES_MAPPER_PATH = "data/ACE/ACE_roles_mapping.json"
+import time
 
 
 class AceTransformer(Transformer):
 
-    def __init__(self, ace_path, stanford_core_path):
-        super().__init__(stanford_core_path)
-        print("Ace-Transformer initialization")
+    def __init__(self, ace_path, model):
+        super().__init__(model)
+        self.log.info("Initializing AceTransformer")
         self.id_base = "ACE-instance-"
         self.path = ace_path
         self.origin = "ACE"
 
-        # mappers that map roles/eventTypes of ACE to the ones of RAMS
-        self.event_types_mapper = utilities.read_json(EVENT_TYPE_MAPPER_PATH)
-        self.roles_mapper = utilities.read_json(ROLES_MAPPER_PATH)
-
     # process eventTypes to be more lookalike with the ones of rams
     def process_event(self, event_type):
-        return event_type.replace(":", ".").replace("-", "")
+        return event_type.replace(":", ".")
 
     # accumulate and store all the roles/eventTypes
     def export_types(self, roles_path, event_paths):
@@ -39,6 +33,9 @@ class AceTransformer(Transformer):
 
     # transform dataset to the common schema
     def transform(self, output_path):
+        start_time = time.monotonic()
+
+        self.log.info("Starts transformation of ACE")
         new_instances = []
         i = -1
         ace_jsons = utilities.read_json(self.path)

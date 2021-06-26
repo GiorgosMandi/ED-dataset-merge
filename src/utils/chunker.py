@@ -8,7 +8,6 @@ nltk.download('conll2000')
 class BigramChunker(nltk.ChunkParserI):
 
     def __init__(self):
-        print("chunker-initialization")
         train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
         train_data = [[(t,c) for w,t,c in nltk.chunk.tree2conlltags(sent)]
                       for sent in train_sents]

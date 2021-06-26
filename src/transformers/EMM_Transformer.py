@@ -3,16 +3,17 @@ from tqdm import tqdm
 from ..utils import utilities
 import re
 import os
+import time
 
 
-class EDDTransformer(Transformer):
+class EmmTransformer(Transformer):
 
-    def __init__(self, edd_path, stanford_core_path):
-        super().__init__(stanford_core_path)
-        print("edd-transformer initialization")
-        self.id_base = "EDD-instance-"
+    def __init__(self, edd_path, model):
+        super().__init__(model)
+        self.log.info("Initializing EmmTransformer")
+        self.id_base = "EMM-instance-"
         self.path = edd_path
-        self.origin = "EDD"
+        self.origin = "EMM"
 
     # accumulate and store all the roles/eventTypes
     def export_types(self, roles_path, event_paths):
@@ -40,21 +41,24 @@ class EDDTransformer(Transformer):
         utilities.write_iterable(event_paths, events)
 
     def transform(self, output_path):
-        id = 0
+        self.log.info("Starts transformation of EMM")
+        start_time = time.monotonic()
+        i = 0
         if os.path.isdir(self.path):
             for file in tqdm(os.listdir(self.path)):
                 json_file = self.path + file
-                edd_jsons = utilities.read_json(json_file)
-                self.transform_json(edd_jsons, output_path, id)
-                id += 1
+                self.transform_json(json_file, output_path, i)
+                i += 1
         else:
-            self.transform_json(self.path, output_path, id)
+            self.transform_json(self.path, output_path, i)
+        self.log.info("Transformation of EMM completed in " + str(round(time.monotonic() - start_time, 3)) + "sec")
 
-    def transform_json(self, edd_jsons, output_path, id):
+    def transform_json(self, json_file, output_path, i):
         new_instances = []
+        edd_jsons = utilities.read_json(json_file)
         for instance in edd_jsons:
             instance_data = instance['data']
-            new_instance_id = self.id_base + "-" + instance_data['filename'] + str(id)
+            new_instance_id = self.id_base + "-" + instance_data['filename'] + str(i)
             text_sentence = re.sub(r'(?<!\.)\n', ' . ', instance_data['text']).replace("\n", "")
 
             sentences = []
@@ -83,7 +87,7 @@ class EDDTransformer(Transformer):
             arguments = []
             entities = []
             instance_result = instance['completions'][0]['result']
-            for i, result in enumerate(instance_result):
+            for j, result in enumerate(instance_result):
                 if result['from_name'] == "ev_type":
                     event_type = result['value']['choices'][0].lower()
                     event_type = self.events_mapper[event_type]
@@ -96,7 +100,7 @@ class EDDTransformer(Transformer):
                     if role == 'event trigger':
                         trigger = {'start': entity_start, 'end': entity_end, 'text': entity_text}
                     else:
-                        entity_id = new_instance_id + "-" + str(i)
+                        entity_id = new_instance_id + "-" + str(j)
                         types = set(entity_types[entity_start: entity_end])
                         entity_type = "O"
                         if len(types) > 0:
@@ -135,4 +139,5 @@ class EDDTransformer(Transformer):
                 utilities.write_json(new_instances, output_path)
                 new_instances = []
         utilities.write_json(new_instances, output_path)
+
 

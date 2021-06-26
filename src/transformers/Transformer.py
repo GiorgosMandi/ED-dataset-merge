@@ -2,29 +2,32 @@ import json
 import re
 from abc import abstractmethod
 import spacy
-from ..utils import utilities
+from . import Configuration
 from ..utils.chunker import BigramChunker
-from stanfordcorenlp import StanfordCoreNLP
 
-ROLES_MAPPER_PATH = "data/roles_mapping.json"
-EVENTS_MAPPER_PATH = "data/events_mapping.json"
+import logging
 
 
 class Transformer:
 
-    def __init__(self, stanford_core_path):
-
-        print("transformer intialization")
+    def __init__(self, model):
+        self.log = logging.getLogger()
+        self.log.setLevel(logging.INFO)
+        self.log.info("Initializing Transformer")
         self.nlp = spacy.load('en_core_web_sm')
-        self.snlp = StanfordCoreNLP(stanford_core_path, memory='3g', timeout=10, logging_level="INFO")
+        self.coreNLP = model
+
+        self.log.info("Initializing Chunker")
         self.chunker = BigramChunker()
-        self.roles_mapper = utilities.read_json(ROLES_MAPPER_PATH)
-        self.events_mapper = utilities.read_json(EVENTS_MAPPER_PATH)
+        self.roles_mapper = Configuration.roles_mapping
+        self.roles = Configuration.roles
+        self.events_mapper = Configuration.events_mapping
+        self.events = Configuration.events
         self.batch_size = 50
 
     def advanced_parsing(self, text):
         text = re.sub("-", " - ", text)
-        snlp_processed_json = self.snlp.annotate(text, properties={'annotators': 'tokenize,ssplit,pos,lemma,parse,ner',
+        processed_json = self.coreNLP.annotate(text, properties={'annotators': 'tokenize,ssplit,pos,lemma,parse,ner',
                                                                    'timeout': '50000'})
         words = []
         lemma = []
@@ -35,10 +38,10 @@ class Transformer:
         dependency_parsing = []
         sentences = []
         texts = []
-        if snlp_processed_json:
-            snlp_processed = json.loads(snlp_processed_json)
+        if processed_json:
+            processed_json = json.loads(processed_json)
             next_start = 0
-            for parsed in snlp_processed['sentences']:
+            for parsed in processed_json['sentences']:
 
                 sentence_words = [token['word'] for token in parsed['tokens']]
                 sentence_pos_tags = [token['pos'] for token in parsed['tokens']]

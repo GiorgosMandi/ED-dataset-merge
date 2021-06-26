@@ -1,6 +1,4 @@
-{
-
-
+events_mapping = {
     "Justice:Arrest-Jail": "JUSTICE.ARREST-JAIL",
     "Life:Die": "LIFE.DIE",
     "Conflict:Attack": "CONFLICT.ATTACK",
@@ -95,5 +93,74 @@
     "disaster.fireexplosion.fireexplosion": "ARTIFACT.DESTRUCTION",
     "manufacture.artifact.build": "ARTIFACT.CONSTRUCTION",
     "inspection.sensoryobserve.n/a": "INSPECTION"
-
 }
+
+events = list(set(events_mapping.values()))
+
+roles_mapping = {
+    "police": "police",
+    "person": "person",
+    "agent": "agent",
+    "entity": "observedentity",
+    "communicator": "communicator",
+    "transporter": "transporter",
+    "recipient": "recipient",
+    "judgecourt": "judgecourt",
+    "target": "target",
+    "otherparticipant": "otherparticipant",
+    "defendant": "defendant",
+    "observedentity": "observedentity",
+    "place": "place",
+    "killer": "killer",
+    "investigator": "investigator",
+    "artifact": "artifact",
+    "detainee": "detainee",
+    "prosecutor": "prosecutor",
+    "executioner": "executioner",
+    "beneficiary": "beneficiary",
+    "passenger": "passenger",
+    "preventer": "preventer",
+    "participant": "participant",
+    "candidate": "candidate",
+    "victim": "victim",
+    "spy": "spy",
+    "attacker": "attacker",
+    "money": "money",
+    "jailer": "jailer",
+    "fireexplosionobject": "fireexplosionobject",
+    "instrument": "instrument",
+    "extraditer": "extraditer",
+    "giver": "giver",
+    "governmentbody": "governmentbody",
+    "employee": "employee",
+    "injurer": "injurer",
+    "observer": "observer",
+    "crime": "crime",
+    "violator": "violator",
+    "destination": "destination",
+    "origin": "origin",
+    "retreater": "retreater",
+    "manufacturer": "manufacturer",
+    "placeofemployment": "placeofemployment",
+    "vehicle": "vehicle",
+    "arrested": "arrested",
+    "property": "property",
+    "location": "place",
+    "location adverb" : "place",
+    "weapons": "instrument",
+    "aim": "aim",
+    "perpetrator" : "perpetrator",
+    "time" : "time",
+    "injured" : "injured",
+    "kidnapped": "kidnapped",
+    "displaced" : "displaced",
+    "dead": "dead",
+    "indirect participant": "participant",
+    "num dead": "numberofaffected",
+    "num injured": "numberofaffected",
+    "num displaced": "numberofaffected",
+    "num kidnapped": "numberofaffected",
+    "num arrested": "numberofaffected"
+}
+
+roles = list(set(roles_mapping.values()))

@@ -2,19 +2,23 @@ import re
 from .Transformer import Transformer
 from tqdm import tqdm
 from ..utils import utilities
+import time
 
 
 class RamsTransformer(Transformer):
 
-    def __init__(self, rams_path, stanford_core_path):
-        super().__init__(stanford_core_path)
-        print("rams-transformer intialization")
+    def __init__(self, rams_path, model):
+        super().__init__(model)
+        self.log.info("Initializing RamsTransformer")
         self.id_base = "RAMS-instance-"
         self.rams_path = rams_path
         self.origin = "RAMS"
 
     # transform dataset to the common schema
     def transform(self, output_path):
+        self.log.info("Starts transformation of RAMS")
+        start_time = time.monotonic()
+
         new_instances = []
         i = -1
         rams_jsons = utilities.read_jsonlines(self.rams_path)
@@ -109,4 +113,6 @@ class RamsTransformer(Transformer):
                 utilities.write_json(new_instances, output_path)
                 new_instances = []
         utilities.write_json(new_instances, output_path)
+        self.log.info("Transformation of RAMS completed in " + str(round(time.monotonic() - start_time, 3)) + "sec")
+
 

@@ -1,22 +1,26 @@
 from tqdm import tqdm
 from .Transformer import Transformer
 from ..utils import utilities
+import time
 
 
 class M2e2Transformer(Transformer):
 
-    def __init__(self, m2e2_path, stanford_core_path):
-        super().__init__(stanford_core_path)
-        print("m2e2-transformer intialization")
+    def __init__(self, m2e2_path, model):
+        super().__init__(model)
+        self.log.info("Initializing M2e2Transformer")
         self.id_base = "M2E2-instance-"
         self.m2e2_path = m2e2_path
         self.origin = "M2E2"
 
     # transform dataset to the common schema
-    # WARNING: This dataset contains many errors and there is no consistency:
-    #   - in its word list, contains characters that  do not exist in the actual sentence
+    # WARNING: Dataset contains errors and inconsistency:
+    #   - in its word list, contains characters that do not exist in the actual sentence
     #   - sometimes the '-' separated words are treated as one word and other times as two
     def transform(self, output_path):
+        self.log.info("Starts transformation of M2E2")
+        start_time = time.monotonic()
+
         new_instances = []
         i = -1
         m2e2_jsons = utilities.read_json(self.m2e2_path)
@@ -115,6 +119,7 @@ class M2e2Transformer(Transformer):
                 utilities.write_json(new_instances, output_path)
                 new_instances = []
         utilities.write_json(new_instances, output_path)
+        self.log.info("Transformation of M2E2 completed in " + str(round(time.monotonic() - start_time, 3)) + "sec")
 
     def adjust_to_parsed(self, token):
         return token.replace('’', r"'").replace('‘', "'").replace("(", "-LRB-").replace(")", "-RRB-")

@@ -1,63 +1,88 @@
 from .transformers.RAMS_Trasnformer import RamsTransformer
 from .transformers.M2E2_Transformer import M2e2Transformer
 from .transformers.ACE_Transformer import AceTransformer
-from .transformers.EDD_Transformer import EDDTransformer
+from .transformers.EMM_Transformer import EmmTransformer
+from stanfordcorenlp import StanfordCoreNLP
 
-from .utils import utilities
 import argparse
 import os
+import logging
 
 
+log = logging.getLogger()
+log.setLevel(logging.INFO)
+
+# TODO fix ACE
+# TODO fix readme
 parser = argparse.ArgumentParser(description="Give arguments")
-parser.add_argument('-base', metavar='base_path', type=str, help='Path of working folder')
-parser.add_argument('-dt', metavar='base_path', type=str, help='witch dataset to transform')
+parser.add_argument('-coreNLP', metavar='coreNLP_path', type=str, help='Path to the pretrained coreNLP model', required=True)
+parser.add_argument('-memory', metavar='memory', default="3", type=str, help='CoreNLP memory in GB, default value is 3 GB')
+parser.add_argument('-out', metavar='out', type=str, help='Output path', required=True)
+
+parser.add_argument('-emm', metavar='emm_path', type=str, help='Path to the EMM dataset, can be a json file or a folder of jsons')
+parser.add_argument('-rams', metavar='rams_path', type=str, help='Path to the RAMS dataset')
+parser.add_argument('-m2e2', metavar='m2e2_path', type=str, help='Path to the M2E2 dataset')
+parser.add_argument('-ace', metavar='ace_path', type=str, help='Path to the pre-processed ACE dataset')
 
 args = parser.parse_args()
-os.chdir(args.base)
-RAMS_dir_path = 'data/RAMS'
-EDD_dir_path = 'data/EDD'
-M2E2_dir_path = 'data/M2E2'
-ACE_dir_path = 'data/ACE'
+if not os.path.exists(args.coreNLP):
+    log.error("CoreNLP path does not exist")
+    exit(1)
 
-rams_path = RAMS_dir_path + '/rams_100.jsonlines'
-edd_path = EDD_dir_path + '/jsons/'
-m2e2_path = M2E2_dir_path + '/article_0816_filter.json'
-ace_path = ACE_dir_path + '/ace.json'
+if not os.path.exists(args.out):
+    log.error("Output path does not exist")
+    exit(1)
 
-core_nlp_path = 'model/stanford-corenlp-full-2018-10-05'
-output_path = 'data/instances.jsonlines'
+if not args.emm and not args.ace and not args.m2e2 and not args.rams:
+    log.error("No input dataset to transform")
+    exit(1)
 
-if args.dt == "rams" or args.dt == "all":
-    transformer = RamsTransformer(rams_path, core_nlp_path)
-    transformer.transform(output_path)
+if not args.memory.isdigit():
+    log.error("CoreNLP memory value is not a number")
+    exit(1)
 
-elif args.dt == "edd" or args.dt == "all":
-    transformer = EDDTransformer(edd_path, core_nlp_path)
-    transformer.transform(output_path)
 
-elif args.dt == "m2e2" or args.dt == "all":
-    transformer = M2e2Transformer(m2e2_path, core_nlp_path)
-    transformer.transform(output_path)
+coreNLP = StanfordCoreNLP(args.coreNLP, memory=args.memory + 'g', timeout=10, logging_level="INFO")
+log.info("Initialized Core NLP with " + str(args.memory) + "GB of memory")
 
-elif args.dt == "ace" or args.dt == "all":
-    transformer = AceTransformer(ace_path, core_nlp_path)
+output_path = args.out + 'instances.jsonlines' if args.out[-1] == '/' else args.out + '/instances.jsonlines'
+log.info("Results will be stored in '" + output_path + "'")
 
-    ace_roles_path = ACE_dir_path + '/ACE_roles.txt'
-    ace_roles_mapping_path = ACE_dir_path + '/ACE_roles_mapping.json'
+if args.rams:
+    if os.path.exists(args.rams):
+        log.info("Starts the transformation of RAMS ")
+        log.info("RAMS source: '" + args.rams + "'")
+        transformer = RamsTransformer(args.rams, coreNLP)
+        transformer.transform(output_path)
+    else:
+        log.error("RAMS path '" + args.rams + "' does not exist")
 
-    ace_events_path = ACE_dir_path + '/ACE_events.txt'
-    ace_events_mapping_path = ACE_dir_path + '/ACE_events_mapping.json'
+if args.emm:
+    if os.path.exists(args.emm):
+        log.info("Starts the transformation of EMM ")
+        log.info("EMM source: '" + args.emm + "'")
+        transformer = EmmTransformer(args.emm, coreNLP)
+        transformer.transform(output_path)
+    else:
+        log.error("EMM path '" + args.emm + "' does not exist")
 
-    if not os.path.exists(ace_roles_mapping_path) or not os.path.exists(ace_events_mapping_path):
-        if not os.path.exists(ace_roles_path) or not os.path.exists(ace_events_path):
-            transformer.export_types(ace_roles_path, ace_events_path)
+if args.m2e2:
+    if os.path.exists(args.m2e2):
+        log.info("Starts the transformation of M2E2 ")
+        log.info("M2E2 source: '" + args.m2e2 + "'")
+        transformer = M2e2Transformer(args.m2e2, coreNLP)
+        transformer.transform(output_path)
+    else:
+        log.error("M2E2 path '" + args.m2e2 + "' does not exist")
 
-        roles_mapping = utilities.match_entities(ace_roles_path, RAMS_dir_path + '/RAMS_roles.txt')
-        events_mapping = utilities.match_entities(ace_events_path, RAMS_dir_path + '/RAMS_event_types.txt')
+if args.ace:
+    if os.path.exists(args.ace):
+        # TODO adjust ACE roles and event types
+        log.info("Starts the transformation of pre-processed ACE ")
+        log.info("Ace source: '" + args.ace + "'")
+        transformer = AceTransformer(args.ace, coreNLP)
+        transformer.transform(output_path)
+    else:
+        log.error("ACE path '" + args.ace + "' does not exist")
 
-        utilities.write_json(roles_mapping, ace_roles_mapping_path)
-        utilities.write_json(events_mapping, ace_events_mapping_path)
-
-    transformer.transform(output_path)
-
-print("done")
+log.info("Transformation Completed")
