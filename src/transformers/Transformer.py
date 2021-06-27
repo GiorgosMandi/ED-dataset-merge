@@ -39,47 +39,48 @@ class Transformer:
         sentences = []
         texts = []
         if processed_json:
-            processed_json = json.loads(processed_json)
-            next_start = 0
-            for parsed in processed_json['sentences']:
+            try:
+                processed_json = json.loads(processed_json)
+                next_start = 0
+                for parsed in processed_json['sentences']:
 
-                sentence_words = [token['word'] for token in parsed['tokens']]
-                sentence_pos_tags = [token['pos'] for token in parsed['tokens']]
-                words.extend(sentence_words)
-                pos_tags.extend(sentence_pos_tags)
-                lemma.extend([token['lemma'] for token in parsed['tokens']])
+                    sentence_words = [token['word'] for token in parsed['tokens']]
+                    sentence_pos_tags = [token['pos'] for token in parsed['tokens']]
+                    words.extend(sentence_words)
+                    pos_tags.extend(sentence_pos_tags)
+                    lemma.extend([token['lemma'] for token in parsed['tokens']])
 
-                # applying IOB to named entities
-                current_type = "O"
-                ner = []
-                for token in parsed['tokens']:
-                    token_ner = token['ner']
-                    if token_ner != "O":
-                        if current_type != "O" and current_type == token_ner:
-                            ner.append("I-" + current_type)
+                    # applying IOB to named entities
+                    current_type = "O"
+                    ner = []
+                    for token in parsed['tokens']:
+                        token_ner = token['ner']
+                        if token_ner != "O":
+                            if current_type != "O" and current_type == token_ner:
+                                ner.append("I-" + current_type)
+                            else:
+                                current_type = token_ner
+                                ner.append("B-" + current_type)
                         else:
-                            current_type = token_ner
-                            ner.append("B-" + current_type)
-                    else:
-                        current_type = "O"
-                        ner.append("O")
+                            current_type = "O"
+                            ner.append("O")
 
-                entity_types.extend(ner)
-                start = next_start
-                end = start + len(sentence_words)
-                next_start = end
-                text = ' '.join(sentence_words)
-                texts.append(text)
-                sentences.append({'start': start, 'end': end, 'text': text})
+                    entity_types.extend(ner)
+                    start = next_start
+                    end = start + len(sentence_words)
+                    next_start = end
+                    text = ' '.join(sentence_words)
+                    texts.append(text)
+                    sentences.append({'start': start, 'end': end, 'text': text})
 
-                chunks.append(self.chunking(sentence_words, sentence_pos_tags))
-                penn_treebanks.append(re.sub(r'\n|\s+', ' ', parsed['parse']))
-                dependency_parsing.append(
-                    ['{}/dep={}/gov={}'.format(dep['dep'], dep['dependent'] - 1, dep['governor'] - 1)
-                     for dep in parsed['enhancedPlusPlusDependencies']])
+                    chunks.append(self.chunking(sentence_words, sentence_pos_tags))
+                    penn_treebanks.append(re.sub(r'\n|\s+', ' ', parsed['parse']))
+                    dependency_parsing.append(
+                        ['{}/dep={}/gov={}'.format(dep['dep'], dep['dependent'] - 1, dep['governor'] - 1)
+                         for dep in parsed['enhancedPlusPlusDependencies']])
 
-                # nlp_sentence = self.nlp(text)
-                # head.extend([word.head.i for word in nlp_sentence if word.text != '\''])
+            except json.decoder.JSONDecodeError:
+                self.log.error("Exception reading CoreNLP results\n CoreNLP -> JSON: \n" + processed_json)
 
         return {'sentences': sentences, 'text': ' '.join(texts), 'words': words, 'pos-tag': pos_tags, 'lemma': lemma,
                 'ner': entity_types, 'treebank': penn_treebanks, 'dep-parse': dependency_parsing, 'chunks': chunks}

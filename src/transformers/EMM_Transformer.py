@@ -45,8 +45,9 @@ class EmmTransformer(Transformer):
         start_time = time.monotonic()
         i = 0
         if os.path.isdir(self.path):
-            for file in tqdm(os.listdir(self.path)):
+            for file in os.listdir(self.path):
                 json_file = self.path + file
+                self.log.info("Transforming " + file)
                 self.transform_json(json_file, output_path, i)
                 i += 1
         else:
@@ -56,7 +57,7 @@ class EmmTransformer(Transformer):
     def transform_json(self, json_file, output_path, i):
         new_instances = []
         edd_jsons = utilities.read_json(json_file)
-        for instance in edd_jsons:
+        for instance in tqdm(edd_jsons):
             instance_data = instance['data']
             new_instance_id = self.id_base + "-" + instance_data['filename'] + str(i)
             text_sentence = re.sub(r'(?<!\.)\n', ' . ', instance_data['text']).replace("\n", "")
