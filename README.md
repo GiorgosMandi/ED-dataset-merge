@@ -13,13 +13,13 @@ First users need to download Standford's CoreNLP model. You can find more inform
 To download it you can run:
 
 ```shell script
-$ wget http://nlp.stanford.edu/software/stanford-corenlp-full-2018-10-05.zip -O stanford-corenl p.zip
-$ unzip stanford-corenlp
+wget http://nlp.stanford.edu/software/stanford-corenlp-full-2018-10-05.zip -O stanford-corenlp.zip
+unzip stanford-corenlp.zip
 ```
 
 Then, install requirements using:
 
-    $ pip install -r requirements.txt
+    pip install -r requirements.txt
 
 
 ## Execution

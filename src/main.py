@@ -12,8 +12,6 @@ import logging
 log = logging.getLogger()
 log.setLevel(logging.INFO)
 
-# TODO fix ACE
-# TODO fix readme
 parser = argparse.ArgumentParser(description="Give arguments")
 parser.add_argument('-coreNLP', metavar='coreNLP_path', type=str, help='Path to the pretrained coreNLP model', required=True)
 parser.add_argument('-memory', metavar='memory', default="3", type=str, help='CoreNLP memory in GB, default value is 3 GB')
