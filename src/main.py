@@ -15,6 +15,8 @@ log.setLevel(logging.INFO)
 parser = argparse.ArgumentParser(description="Give arguments")
 parser.add_argument('-coreNLP', metavar='coreNLP_path', type=str, help='Path to the pretrained coreNLP model', required=True)
 parser.add_argument('-memory', metavar='memory', default="3", type=str, help='CoreNLP memory in GB, default value is 3 GB')
+parser.add_argument('-timeout', metavar='timeout', default="10", type=str, help='CoreNLP timeout, default value is 10 sec')
+
 parser.add_argument('-out', metavar='out', type=str, help='Output path', required=True)
 
 parser.add_argument('-emm', metavar='emm_path', type=str, help='Path to the EMM dataset, can be a json file or a folder of jsons')
@@ -39,11 +41,14 @@ if not args.memory.isdigit():
     log.error("CoreNLP memory value is not a number")
     exit(1)
 
+if not args.timeout.isdigit():
+    log.error("CoreNLP timeout value is not a number")
+    exit(1)
 
-coreNLP = StanfordCoreNLP(args.coreNLP, memory=args.memory + 'g', timeout=10, logging_level="INFO")
-log.info("Initialized Core NLP with " + str(args.memory) + "GB of memory")
+coreNLP = StanfordCoreNLP(args.coreNLP, memory=args.memory + 'g', timeout=int(args.timeout), logging_level="INFO")
+log.info("Initialized Core NLP with " + str(args.memory) + "GB of memory and " + args.timeout + " seconds")
 
-output_path = args.out + 'instances.jsonlines' if args.out[-1] == '/' else args.out + '/instances.jsonlines'
+output_path = args.out
 log.info("Results will be stored in '" + output_path + "'")
 
 if args.rams:

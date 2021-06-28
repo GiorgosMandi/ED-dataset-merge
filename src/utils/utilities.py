@@ -5,6 +5,8 @@ import numpy as np
 
 def most_frequent(List):
     unbios = [e[2:] if len(e) > 2 else e for e in List]
+    if len(unbios) == 0:
+        return "O"
     return max(set(unbios), key=List.count)
 
 
