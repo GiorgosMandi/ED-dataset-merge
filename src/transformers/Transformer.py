@@ -80,7 +80,7 @@ class Transformer:
                          for dep in parsed['enhancedPlusPlusDependencies']])
 
             except json.decoder.JSONDecodeError:
-                self.log.error("Exception reading CoreNLP results\n CoreNLP -> JSON: \n" + processed_json)
+                self.log.error("Exception reading CoreNLP's results\n CoreNLP -> resulted JSON: \n" + processed_json)
 
         return {'sentences': sentences, 'text': ' '.join(texts), 'words': words, 'pos-tag': pos_tags, 'lemma': lemma,
                 'ner': entity_types, 'treebank': penn_treebanks, 'dep-parse': dependency_parsing, 'chunks': chunks}

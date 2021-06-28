@@ -80,7 +80,6 @@ if args.m2e2:
 
 if args.ace:
     if os.path.exists(args.ace):
-        # TODO adjust ACE roles and event types
         log.info("Starts the transformation of pre-processed ACE ")
         log.info("Ace source: '" + args.ace + "'")
         transformer = AceTransformer(args.ace, coreNLP)

@@ -1,6 +1,7 @@
 # EventDetectionDataset-Unifier
 
-This is an ETL tool which goal is to transform four well-known Event-Detection datasets under a unified common schema. These four datasets are the following:
+**EventDetectionDataset-Unifier** is an ETL tool which goal is to transform four well-known Event-Detection datasets into a unified common schema. 
+These four datasets are the following:
 
   - [RAMS](https://nlp.jhu.edu/rams/)
   - [M2E2](https://github.com/limanling/m2e2)
@@ -13,7 +14,7 @@ First users need to download Standford's CoreNLP model. You can find more inform
 To download it you can run:
 
 ```shell script
-wget http://nlp.stanford.edu/software/stanford-corenlp-full-2018-10-05.zip -O stanford-corenlp.zip
+wget -O stanford-corenlp.zip http://nlp.stanford.edu/software/stanford-corenlp-full-2018-10-05.zip 
 unzip stanford-corenlp.zip
 ```
 
@@ -30,9 +31,9 @@ and dataset related arguments.
 The **Execution Arguments** are the following:
 
 - *-coreNLP path/to/coreNLP_directory*:  Path to the directory of CoreNLP. (Required)
-- *-out path/to/output_directory*: Path to the output directory. The results will be stored in `instances.json` file which will be created inside `path/to/output_directory`. 
-                                    **WARNING**:  *EventDetectionDataset-Unifier* opens this file in append mode, so in case it already exists, the results will be appended to its existing content. (Required)
+- *-out path/to/output.jsonlines*: Path to the output. **WARNING**:  *EventDetectionDataset-Unifier* opens this file in append mode, so in case it already exists, the results will be appended to its existing content. (Required)
 - *-memory X*: The size of heap memory to provide to coreNLP.  X must be an integer.  (Optional, default value is 3)
+- *-timeout X*: CoreNLP's timeout processing time.  X must be an integer.  (Optional, default value is 10s)
 - *-h*:        Print instructions.
 
 The **Datasets Arguments** are the following:
