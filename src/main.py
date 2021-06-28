@@ -29,7 +29,7 @@ if not os.path.exists(args.coreNLP):
     log.error("CoreNLP path does not exist")
     exit(1)
 
-if not os.path.exists(args.out):
+if not os.path.exists(args.out.rsplit('/', 1)[0]):
     log.error("Output path does not exist")
     exit(1)
 
