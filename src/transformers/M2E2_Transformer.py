@@ -47,17 +47,22 @@ class M2e2Transformer(Transformer):
             # adjust entities
             text_to_entity = {}
             entities = []
+            successfully = True
             for j, entity in enumerate(instance['golden-entity-mentions']):
                 entity_id = new_instance_id + "-entity-" + str(j)
                 existing_ner = entity['entity-type']
 
                 # to tackle the inconsistencies in the list of words of the dataset,
-                # we find the text to the words of our list and make pointers to thees
-                entity_first_word = instance['words'][entity['start']]
+                # we find the text to the words of our list and make pointers to
+                entity_text = ' '.join(instance['words'][entity['start']:entity['end']])
+                entity_text = self.adjust_to_parsed(entity_text)
+                entity_words = entity_text.split(" ")
+
+                entity_first_word = entity_words[0]
                 entity_first_word = entity_first_word.split("-")[0] if "-" in entity_first_word else entity_first_word
                 entity_first_word = self.adjust_to_parsed(entity_first_word)
 
-                entity_last_word = instance['words'][entity['end']-1]
+                entity_last_word = entity_words[-1]
                 entity_last_word = entity_last_word.split("-")[-1] if "-" in entity_last_word else entity_last_word
                 entity_last_word = self.adjust_to_parsed(entity_last_word)
 
@@ -66,10 +71,17 @@ class M2e2Transformer(Transformer):
                     start = words[entity['start']:].index(entity_first_word) + entity['start']
                     end = words[start:].index(entity_last_word) + start + 1
                 except ValueError:
-                    self.log.error("Entity's first word '" + entity_first_word + "' was not in the sublist " + str(words[entity['start']:]))
-                    self.log.error("Searching in the whole word list")
-                    start = words.index(entity_first_word)
-                    end = words[start:].index(entity_last_word) + start + 1
+                    try:
+                        self.log.error("Failed parsing")
+                        self.log.error("Entity's first word '" + entity_first_word + "' was not in the sublist "
+                                       + str(words[entity['start']:]))
+                        self.log.error("Searching in the whole word list")
+                        start = words.index(entity_first_word)
+                        end = words[start:].index(entity_last_word) + start + 1
+                    except ValueError:
+                        self.log.error("Failed parsing Again. M2E2 inconsistent parsing")
+                        successfully = False
+                        break
 
                 text = ' '.join(words[start: end])
                 new_ner = utilities.most_frequent(entity_types[start: end])
@@ -83,6 +95,10 @@ class M2e2Transformer(Transformer):
                 entities.append(new_entity)
                 text_in_dataset = ' '.join(instance['words'][entity['start']: entity['end']])
                 text_to_entity[text_in_dataset] = new_entity
+
+            if not successfully:
+                self.log.error("Failed twice to parse, skipping instance")
+                continue
 
             # adjust events
             events = []
