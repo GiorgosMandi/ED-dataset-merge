@@ -60,8 +60,15 @@ class M2e2Transformer(Transformer):
                 entity_last_word = self.adjust_to_parsed(entity_last_word)
 
                 # the first word after start that matches
-                start = words[entity['start']:].index(entity_first_word) + entity['start']
-                end = words[start:].index(entity_last_word) + start + 1
+                try:
+                    start = words[entity['start']:].index(entity_first_word) + entity['start']
+                    end = words[start:].index(entity_last_word) + start + 1
+                except ValueError:
+                    self.log.error("Entity's first word '" + entity_first_word + "' was not in the sublist " + str(words[entity['start']:]))
+                    self.log.error("Searching in the whole word list")
+                    start = words.index(entity_first_word)
+                    end = words[start:].index(entity_last_word) + start + 1
+
                 text = ' '.join(words[start: end])
                 new_ner = utilities.most_frequent(entity_types[start: end])
                 new_entity = {'entity-id': entity_id,
