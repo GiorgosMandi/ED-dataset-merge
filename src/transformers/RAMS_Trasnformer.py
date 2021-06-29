@@ -52,9 +52,15 @@ class RamsTransformer(Transformer):
                 chunks = []
                 penn_treebanks = []
                 dependency_parsing = []
+                successfully = True
+
                 for sentence in instance['sentences']:
                     sentence = ' '.join(sentence)
-                    parsing = self.advanced_parsing(sentence)
+                    try:
+                        parsing = self.advanced_parsing(sentence)
+                    except ValueError:
+                        successfully = False
+                        break
                     words.extend(parsing['words'])
                     lemma.extend(parsing['lemma'])
                     pos_tags.extend(parsing['pos-tag'])
@@ -66,6 +72,8 @@ class RamsTransformer(Transformer):
                     dependency_parsing.extend(parsing['dep-parse'])
                     chunks.extend(parsing['chunks'])
 
+                if not successfully:
+                    continue
                 no_of_sentences = len(sentences)
 
                 # process entities

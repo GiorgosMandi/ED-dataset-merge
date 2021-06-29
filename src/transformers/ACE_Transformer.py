@@ -45,7 +45,10 @@ class AceTransformer(Transformer):
             new_instance_id = self.id_base + str(i)
             text_sentence = instance['sentence']
 
-            parsing = self.advanced_parsing(text_sentence)
+            try:
+                parsing = self.advanced_parsing(text_sentence)
+            except ValueError:
+                continue
             sentences = parsing['sentences']
             words = parsing['words']
             lemma = parsing['lemma']

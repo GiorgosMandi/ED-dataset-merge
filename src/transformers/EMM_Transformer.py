@@ -70,8 +70,13 @@ class EmmTransformer(Transformer):
             chunks = []
             penn_treebanks = []
             dependency_parsing = []
+            successfully = True
             for sentence in filter(None, text_sentence.strip().split(".", )):
-                parsing = self.advanced_parsing(sentence)
+                try:
+                    parsing = self.advanced_parsing(sentence)
+                except ValueError:
+                    successfully = False
+                    break
                 words.extend(parsing['words'])
                 pos_tags.extend(parsing['pos-tag'])
                 lemma.extend(parsing['lemma'])
@@ -80,6 +85,9 @@ class EmmTransformer(Transformer):
                 penn_treebanks.extend(parsing['treebank'])
                 dependency_parsing.extend(parsing['dep-parse'])
                 chunks.extend(parsing['chunks'])
+
+            if not successfully:
+                continue
 
             no_of_sentences = len(sentences)
 
