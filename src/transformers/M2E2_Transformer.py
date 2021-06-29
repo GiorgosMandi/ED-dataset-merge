@@ -66,6 +66,7 @@ class M2e2Transformer(Transformer):
                 except ValueError:
                     self.log.error("Entity's first word '" + entity_first_word + "' was not in the sublist " + str(words[entity['start']:]))
                     self.log.error("Searching in the whole word list")
+                    self.log.error("Instance: \n" + str(instance) + "\n\n")
                     start = words.index(entity_first_word)
                     end = words[start:].index(entity_last_word) + start + 1
 
