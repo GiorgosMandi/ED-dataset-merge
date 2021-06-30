@@ -15,7 +15,7 @@ parser.add_argument('-out', metavar='out', type=str, help='Path to the input ins
 args = parser.parse_args()
 input_paths = args.i
 events_per_role = {}
-for input_path in input_paths.split(";"):
+for input_path in input_paths.split(":"):
     with open(input_path) as json_file:
         for inline_json in tqdm(json_file):
             instance = json.loads(inline_json)
