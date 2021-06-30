@@ -125,7 +125,8 @@ class EmmTransformer(Transformer):
                             arguments.append(argument)
                         else:
                             print(role)
-
+            if event_type == "" :
+                continue
             events_triples = [{'arguments': arguments, 'trigger': trigger, 'event-type': event_type}]
             new_instance = {
                 'origin': self.origin,
