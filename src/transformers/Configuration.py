@@ -96,7 +96,7 @@ events_mapping = {
     "release people": "JUSTICE.RELEASE-PAROLE",
     "protest/riot": "CONFLICT.DEMONSTRATE",
     "terrorist/suicide attack": "CONFLICT.ATTACK",
-    "exhibit force posture": "",
+    "exhibit force posture": "CONFLICT.ATTACK",
     "assault": "CONFLICT.ATTACK",
     "cyber attack": "CONFLICT.ATTACK",
     "restrict/reduce rights": "JUSTICE.CHARGE-INDICT",
