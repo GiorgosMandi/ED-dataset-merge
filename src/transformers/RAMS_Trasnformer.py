@@ -110,7 +110,7 @@ class RamsTransformer(Transformer):
                     text = ' '.join(words[arg_start: arg_end])
                     entity_type = utilities.most_frequent(entity_types[arg_start: arg_end])
                     arg_role = re.split("\d", triple[2])[-1]
-                    arg_role = self.roles_mapper[arg_role]
+                    arg_role = self.roles_mapper[arg_role] if arg_role in self.roles_mapper else arg_role
                     argument = {'start': arg_start, 'end': arg_end, 'text': text, 'role': arg_role,
                                 'entity-type': entity_type, 'existing-entity-type': ""}
                     arguments.append(argument)
@@ -135,7 +135,7 @@ class RamsTransformer(Transformer):
                 }
                 new_instances.append(new_instance)
                 if len(new_instances) == self.batch_size:
-                    utilities.write_json(new_instances, output_path)
+                    utilities.write_jsons(new_instances, output_path)
                     new_instances = []
-        utilities.write_json(new_instances, output_path)
+        utilities.write_jsons(new_instances, output_path)
         self.log.info("Transformation of RAMS completed in " + str(round(time.monotonic() - start_time, 3)) + "sec")

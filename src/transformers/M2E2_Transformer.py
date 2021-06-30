@@ -109,7 +109,7 @@ class M2e2Transformer(Transformer):
                     arguments = []
                     for arg in event['arguments']:
                         role = arg['role'].lower()
-                        role = self.roles_mapper[role]
+                        role = self.roles_mapper[role] if role in self.roles_mapper else role
 
                         # there are also inconsistencies between arguments' text and entities' text
                         text_in_dataset = ' '.join(instance['words'][arg['start']: arg['end']])
@@ -141,9 +141,9 @@ class M2e2Transformer(Transformer):
             }
             new_instances.append(new_instance)
             if len(new_instances) == self.batch_size:
-                utilities.write_json(new_instances, output_path)
+                utilities.write_jsons(new_instances, output_path)
                 new_instances = []
-        utilities.write_json(new_instances, output_path)
+        utilities.write_jsons(new_instances, output_path)
         self.log.info("Transformation of M2E2 completed in " + str(round(time.monotonic() - start_time, 3)) + "sec")
 
     def adjust_to_parsed(self, token):

@@ -119,14 +119,14 @@ class EmmTransformer(Transformer):
                                   'entity-type': entity_type, 'existing-entity-type': ""}
                         argument = entity.copy()
                         if role in self.roles_mapper:
-                            role = self.roles_mapper[role]
+                            role = self.roles_mapper[role] if role in self.roles_mapper else role
                             argument['role'] = role
                             entities.append(entity)
                             arguments.append(argument)
                         else:
                             print(role)
 
-            events_triples = {'arguments': arguments, 'trigger': trigger, 'event-type': event_type}
+            events_triples = [{'arguments': arguments, 'trigger': trigger, 'event-type': event_type}]
             new_instance = {
                 'origin': self.origin,
                 'id': new_instance_id,
@@ -145,8 +145,8 @@ class EmmTransformer(Transformer):
             }
             new_instances.append(new_instance)
             if len(new_instances) == self.batch_size:
-                utilities.write_json(new_instances, output_path)
+                utilities.write_jsons(new_instances, output_path)
                 new_instances = []
-        utilities.write_json(new_instances, output_path)
+        utilities.write_jsons(new_instances, output_path)
 
 

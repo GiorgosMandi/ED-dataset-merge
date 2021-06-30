@@ -75,7 +75,8 @@ class AceTransformer(Transformer):
 
             # adjust events
             for event in instance['golden-event-mentions']:
-                event['event_type'] = self.get_event_type(event['event_type'])
+                event['event-type'] = self.get_event_type(event['event_type'])
+                del event['event_type']
                 for arg in event['arguments']:
                     arg["existing-entity-type"] = arg["entity-type"]
                     arg["entity-type"] = text_to_entity[arg['text']]
@@ -100,9 +101,9 @@ class AceTransformer(Transformer):
             }
             new_instances.append(new_instance)
             if len(new_instances) == self.batch_size:
-                utilities.write_json(new_instances, output_path)
+                utilities.write_jsons(new_instances, output_path)
                 new_instances = []
-        utilities.write_json(new_instances, output_path)
+        utilities.write_jsons(new_instances, output_path)
         self.log.info("Transformation of ACE completed in " + str(round(time.monotonic() - start_time, 3)) + "sec")
 
     def get_event_type(self, event_type):
