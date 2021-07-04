@@ -1,7 +1,9 @@
 from tqdm import tqdm
 from .Transformer import Transformer
 from ..utils import utilities
+from ..conf.Constants import Keys
 import time
+import re
 
 
 class M2e2Transformer(Transformer):
@@ -32,16 +34,16 @@ class M2e2Transformer(Transformer):
                 parsing = self.advanced_parsing(text_sentence)
             except ValueError:
                 continue
-            words = parsing['words']
-            lemma = parsing['lemma']
-            pos_tags = parsing['pos-tag']
-            entity_types = parsing['ner']
-            sentences = parsing['sentences']
+            words = parsing[Keys.WORDS.value]
+            lemma = parsing[Keys.LEMMA.value]
+            pos_tags = parsing[Keys.POS_TAGS.value]
+            ner = parsing[Keys.NER.value]
+            sentences = parsing[Keys.SENTENCES.value]
 
             # sentence centric
-            penn_treebanks = parsing['treebank']
-            dependency_parsing = parsing['dep-parse']
-            chunks = parsing['chunks']
+            penn_treebanks = parsing[Keys.PENN_TREEBANK.value]
+            dependency_parsing = parsing[Keys.PENN_TREEBANK.value]
+            chunks = parsing[Keys.CHUNKS.value]
             no_of_sentences = len(sentences)
 
             # adjust entities
@@ -52,45 +54,20 @@ class M2e2Transformer(Transformer):
                 entity_id = new_instance_id + "-entity-" + str(j)
                 existing_ner = entity['entity-type']
 
-                # to tackle the inconsistencies in the list of words of the dataset,
-                # we find the text to the words of our list and make pointers to
                 entity_text = ' '.join(instance['words'][entity['start']:entity['end']])
-                entity_text = self.adjust_to_parsed(entity_text)
-                entity_words = entity_text.split(" ")
-
-                entity_first_word = entity_words[0]
-                entity_first_word = entity_first_word.split("-")[0] if "-" in entity_first_word else entity_first_word
-                entity_first_word = self.adjust_to_parsed(entity_first_word)
-
-                entity_last_word = entity_words[-1]
-                entity_last_word = entity_last_word.split("-")[-1] if "-" in entity_last_word else entity_last_word
-                entity_last_word = self.adjust_to_parsed(entity_last_word)
-
-                # the first word after start that matches
-                try:
-                    start = words[entity['start']:].index(entity_first_word) + entity['start']
-                    end = words[start:].index(entity_last_word) + start + 1
-                except ValueError:
-                    try:
-                        self.log.error("Failed parsing")
-                        self.log.error("Entity's first word '" + entity_first_word + "' was not in the sublist "
-                                       + str(words[entity['start']:]))
-                        self.log.error("Searching in the whole word list")
-                        start = words.index(entity_first_word)
-                        end = words[start:].index(entity_last_word) + start + 1
-                    except ValueError:
-                        self.log.error("Failed parsing Again. M2E2 inconsistent parsing")
-                        successfully = False
-                        break
-
-                text = ' '.join(words[start: end])
-                new_ner = utilities.most_frequent(entity_types[start: end])
-                new_entity = {'entity-id': entity_id,
-                              'start': start,
-                              'end': end,
-                              'text': text,
-                              'entity-type': new_ner,
-                              'existing-entity-type': existing_ner
+                indices = self.search_text_in_list(entity['start'], entity['end'], entity_text, words)
+                entity_start = indices[Keys.START.value]
+                entity_end = indices[Keys.END.value]
+                if not (entity_start and entity_end):
+                    continue
+                text = ' '.join(words[entity_start: entity_end])
+                new_ner = utilities.most_frequent(ner[entity_start: entity_end])
+                new_entity = {Keys.ENTITY_ID.value: entity_id,
+                              Keys.START.value: entity_start,
+                              Keys.END.value: entity_end,
+                              Keys.TEXT.value: text,
+                              Keys.ENTITY_TYPE.value: new_ner,
+                              Keys.EXISTING_ENTITY_TYPE.value: existing_ner
                               }
                 entities.append(new_entity)
                 text_in_dataset = ' '.join(instance['words'][entity['start']: entity['end']])
@@ -114,30 +91,32 @@ class M2e2Transformer(Transformer):
                         # there are also inconsistencies between arguments' text and entities' text
                         text_in_dataset = ' '.join(instance['words'][arg['start']: arg['end']])
                         corresponding_entity = text_to_entity[text_in_dataset]
-                        arguments.append({'start': corresponding_entity['start'],
-                                          'end': corresponding_entity['end'],
-                                          'text': corresponding_entity['text'],
-                                          'role': role,
-                                          'entity-type': corresponding_entity['entity-type'],
-                                          'existing-entity-type': corresponding_entity['existing-entity-type']
+                        arguments.append({Keys.START.value: corresponding_entity['start'],
+                                          Keys.END.value: corresponding_entity['end'],
+                                          Keys.TEXT.value: corresponding_entity['text'],
+                                          Keys.ROLE.value: role,
+                                          Keys.ENTITY_TYPE.value: corresponding_entity['entity-type'],
+                                          Keys.EXISTING_ENTITY_TYPE.value: corresponding_entity['existing-entity-type']
                                           })
-                    events.append({'arguments': arguments, 'trigger': event['trigger'], 'event-type': event_type})
+                    events.append({Keys.ARGUMENTS.value: arguments,
+                                   Keys.TRIGGER.value: event['trigger'],
+                                   Keys.EVENT_TYPE.value: event_type})
 
             new_instance = {
-                'origin': self.origin,
-                'id': new_instance_id,
-                'no-of-sentences': no_of_sentences,
-                'sentences': sentences,
-                'text': text_sentence,
-                'words': words,
-                'lemma': lemma,
-                'pos-tags': pos_tags,
-                'ner': entity_types,
-                'golden-entity-mentions': entities,
-                'golden-event-mentions': events,
-                'penn-treebank': penn_treebanks,
-                "dependency-parsing": dependency_parsing,
-                'chunks': chunks
+                Keys.ORIGIN.value: self.origin,
+                Keys.ID.value: new_instance_id,
+                Keys.NO_SENTENCES.value: no_of_sentences,
+                Keys.SENTENCES.value: sentences,
+                Keys.TEXT.value: text_sentence,
+                Keys.WORDS.value: words,
+                Keys.LEMMA.value: lemma,
+                Keys.POS_TAGS.value: pos_tags,
+                Keys.NER.value: ner,
+                Keys.ENTITIES_MENTIONED.value: entities,
+                Keys.EVENTS_MENTIONED.value: events,
+                Keys.PENN_TREEBANK.value: penn_treebanks,
+                Keys.DEPENDENCY_PARSING.value: dependency_parsing,
+                Keys.CHUNKS.value: chunks
             }
             new_instances.append(new_instance)
             if len(new_instances) == self.batch_size:
@@ -146,5 +125,37 @@ class M2e2Transformer(Transformer):
         utilities.write_jsons(new_instances, output_path)
         self.log.info("Transformation of M2E2 completed in " + str(round(time.monotonic() - start_time, 3)) + "sec")
 
-    def adjust_to_parsed(self, token):
-        return token.replace('’', r"'").replace('‘', "'").replace("(", "-LRB-").replace(")", "-RRB-")
+
+    def search_text_in_list(self, initial_start, initial_end, text, parsed_words):
+
+        # to tackle the inconsistencies in the list of words of the dataset,
+        # we find the text to the words of our list and make pointers to
+        try:
+            new_parsed_words = []
+            for i, pw in enumerate(parsed_words):
+                pw = re.sub(r"-|\'", " ", pw).strip(",. \n\'\"-")
+                splits = pw.split()
+                for spw in splits:
+                    new_parsed_words.append(spw)
+                initial_start -= len(splits)
+                initial_end += len(splits)
+            parsed_words = new_parsed_words
+
+            text_ = re.sub(r"-|\.|\'|\"|‘|’|\[|\]", " ", text).replace("(", " LRB ").replace(")", " RRB ")
+            text_ = re.sub(r"(\d\d)pm", r"\1 pm", text_)
+            text_ = re.sub(r"(\d\d)am", r"\1 pm", text_)
+            parsed = list(filter(lambda name: name.strip(",. \n\'\"-"), [token.text for token in self.nlp(text_)]))
+
+            entity_first_word = parsed[0]
+            initial_start = initial_start - 2 if initial_start > 2 else 0
+            start = parsed_words[initial_start:].index(entity_first_word) + initial_start
+
+            entity_last_word = parsed[-1]
+            initial_end = initial_end + 2 if initial_end > len(parsed_words) - 3 else len(parsed_words) - 1
+            end = parsed_words[initial_start:initial_end].index(entity_last_word) + initial_start
+
+            return {Keys.START.value: start, Keys.END.value: end+1}
+        except ValueError:
+            self.log.error("\n")
+            self.log.error("Not able to find '"+text+"' in list of words")
+            return {Keys.START.value: None, Keys.END.value: None}

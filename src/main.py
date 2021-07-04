@@ -8,6 +8,13 @@ import argparse
 import os
 import logging
 
+# TODO:
+#  1. adjust everything based on Keys ENUM 
+#  2. complete schema validator
+#  3. fix mentioned bugs
+#  4. add argument for mapping
+#  5. evaluate script
+#  6. empty event types of EMM
 
 log = logging.getLogger()
 log.setLevel(logging.INFO)
@@ -29,7 +36,7 @@ if not os.path.exists(args.coreNLP):
     log.error("CoreNLP path does not exist")
     exit(1)
 
-if not os.path.exists(args.out.rsplit('/', 1)[0]):
+if not os.path.exists(os.path.dirname(args.out)):
     log.error("Output path does not exist")
     exit(1)
 

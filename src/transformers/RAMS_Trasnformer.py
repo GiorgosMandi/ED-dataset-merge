@@ -2,6 +2,7 @@ import re
 from .Transformer import Transformer
 from tqdm import tqdm
 from ..utils import utilities
+from ..conf.Constants import Keys
 import time
 import json
 
@@ -61,16 +62,16 @@ class RamsTransformer(Transformer):
                     except ValueError:
                         successfully = False
                         break
-                    words.extend(parsing['words'])
-                    lemma.extend(parsing['lemma'])
-                    pos_tags.extend(parsing['pos-tag'])
-                    entity_types.extend(parsing['ner'])
-                    sentences.extend(parsing['sentences'])
+                    words.extend(parsing[Keys.WORDS.value])
+                    lemma.extend(parsing[Keys.LEMMA.value])
+                    pos_tags.extend(parsing[Keys.POS_TAGS.value])
+                    entity_types.extend(parsing[Keys.NER.value])
+                    sentences.extend(parsing[Keys.SENTENCES.value])
 
                     # sentence centric
-                    penn_treebanks.extend(parsing['treebank'])
-                    dependency_parsing.extend(parsing['dep-parse'])
-                    chunks.extend(parsing['chunks'])
+                    penn_treebanks.extend(parsing[Keys.PENN_TREEBANK.value])
+                    dependency_parsing.extend(parsing[Keys.DEPENDENCY_PARSING.value])
+                    chunks.extend(parsing[Keys.CHUNKS.value])
 
                 if not successfully:
                     continue
@@ -86,18 +87,25 @@ class RamsTransformer(Transformer):
 
                     # multiple words may result to multiple types - pick the most frequent type
                     entity_type = utilities.most_frequent(entity_types[start: end])
-                    new_entity = {'start': start, 'end': end, 'text': text, 'entity-id': entity_id,
-                                  'entity-type': entity_type, 'existing-entity-type': ""}
+                    new_entity = {Keys.START.value: start,
+                                  Keys.END.value: end,
+                                  Keys.TEXT.value: text,
+                                  Keys.ENTITY_ID.value: entity_id,
+                                  Keys.ENTITY_TYPE.value: entity_type,
+                                  Keys.EXISTING_ENTITY_TYPE.value: ""}
                     entities.append(new_entity)
 
                 # process trigger
                 if len(instance['evt_triggers']) > 1:
-                    print("ERROR: More triggers than expected")
+                    self.log.error("\n")
+                    self.log.error("ERROR: More triggers than expected")
 
                 trigger_start = instance['evt_triggers'][0][0]
                 trigger_end = instance['evt_triggers'][0][1] + 1
                 trigger_text = ' '.join(words[trigger_start: trigger_end]).lower()
-                trigger = {'start': trigger_start, 'end': trigger_end, 'text': trigger_text}
+                trigger = {Keys.START.value: trigger_start,
+                           Keys.END.value: trigger_end,
+                           Keys.TEXT.value: trigger_text}
 
                 # process events - construct event-triples
                 event_type = instance['evt_triggers'][0][2][0][0]
@@ -111,27 +119,33 @@ class RamsTransformer(Transformer):
                     entity_type = utilities.most_frequent(entity_types[arg_start: arg_end])
                     arg_role = re.split("\d", triple[2])[-1]
                     arg_role = self.roles_mapper[arg_role] if arg_role in self.roles_mapper else arg_role
-                    argument = {'start': arg_start, 'end': arg_end, 'text': text, 'role': arg_role,
-                                'entity-type': entity_type, 'existing-entity-type': ""}
+                    argument = {Keys.START.value: arg_start,
+                                Keys.END.value: arg_end,
+                                Keys.TEXT.value: text,
+                                Keys.ROLE.value: arg_role,
+                                Keys.ENTITY_TYPE.value: entity_type,
+                                Keys.EXISTING_ENTITY_TYPE.value: ""}
                     arguments.append(argument)
 
-                events_triples.append({'arguments': arguments, 'trigger': trigger, 'event-type': event_type})
+                events_triples.append({Keys.ARGUMENTS.value: arguments,
+                                       Keys.TRIGGER.value: trigger,
+                                       Keys.EVENT_TYPE.value: event_type})
 
                 new_instance = {
-                    'origin': self.origin,
-                    'id': new_instance_id,
-                    'no-of-sentences': no_of_sentences,
-                    'sentences': sentences,
-                    'text': text_sentences,
-                    'words': words,
-                    'lemma': lemma,
-                    'pos-tags': pos_tags,
-                    'ner': entity_types,
-                    'golden-entity-mentions': entities,
-                    'golden-event-mentions': events_triples,
-                    'penn-treebank': penn_treebanks,
-                    "dependency-parsing": dependency_parsing,
-                    'chunks': chunks
+                    Keys.ORIGIN.value: self.origin,
+                    Keys.ID.value: new_instance_id,
+                    Keys.NO_SENTENCES.value: no_of_sentences,
+                    Keys.SENTENCES.value: sentences,
+                    Keys.TEXT.value: text_sentences,
+                    Keys.WORDS.value: words,
+                    Keys.LEMMA.value: lemma,
+                    Keys.POS_TAGS.value: pos_tags,
+                    Keys.NER.value: entity_types,
+                    Keys.ENTITIES_MENTIONED.value: entities,
+                    Keys.EVENTS_MENTIONED.value: events_triples,
+                    Keys.PENN_TREEBANK.value: penn_treebanks,
+                    Keys.DEPENDENCY_PARSING.value: dependency_parsing,
+                    Keys.CHUNKS.value: chunks
                 }
                 new_instances.append(new_instance)
                 if len(new_instances) == self.batch_size:

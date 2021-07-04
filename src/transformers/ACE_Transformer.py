@@ -1,6 +1,8 @@
 from .Transformer import Transformer
 from tqdm import tqdm
 from ..utils import utilities
+from ..conf.Constants import Keys
+
 import time
 
 
@@ -13,10 +15,6 @@ class AceTransformer(Transformer):
         self.path = ace_path
         self.origin = "ACE"
 
-    # process eventTypes to be more lookalike with the ones of rams
-    def process_event(self, event_type):
-        return event_type.replace(":", ".")
-
     # accumulate and store all the roles/eventTypes
     def export_types(self, roles_path, event_paths):
         events = set()
@@ -24,7 +22,7 @@ class AceTransformer(Transformer):
         ace_jsons = utilities.read_json(self.path)
         for instance in tqdm(ace_jsons):
             for event in instance['golden-event-mentions']:
-                events.add(self.process_event(event['event_type']))
+                events.add(event['event_type'].replace(":", "."))
                 for arg in event['arguments']:
                     roles.add(arg["role"])
 
@@ -43,22 +41,22 @@ class AceTransformer(Transformer):
             i += 1
 
             new_instance_id = self.id_base + str(i)
-            text_sentence = instance['sentence']
 
             try:
-                parsing = self.advanced_parsing(text_sentence)
+                parsing = self.advanced_parsing(instance['sentence'])
             except ValueError:
                 continue
-            sentences = parsing['sentences']
-            words = parsing['words']
-            lemma = parsing['lemma']
-            pos_tags = parsing['pos-tag']
-            entity_types = parsing['ner']
+            text_sentence = parsing[Keys.TEXT.value]
+            sentences = parsing[Keys.SENTENCES.value]
+            words = parsing[Keys.WORDS.value]
+            lemma = parsing[Keys.LEMMA.value]
+            pos_tags = parsing[Keys.POS_TAGS.value]
+            ner = parsing[Keys.NER.value]
 
             # sentence centric
-            penn_treebanks = parsing['treebank']
-            dependency_parsing = parsing['dep-parse']
-            chunks = parsing['chunks']
+            penn_treebanks = parsing[Keys.PENN_TREEBANK.value]
+            dependency_parsing = parsing[Keys.DEPENDENCY_PARSING.value]
+            chunks = parsing[Keys.CHUNKS.value]
             no_of_sentences = len(sentences)
 
             # adjust entities
@@ -66,38 +64,51 @@ class AceTransformer(Transformer):
             text_to_entity = {}
             for entity in instance["golden-entity-mentions"]:
                 existing_entity_type = entity["entity-type"]
-                entity_type = utilities.most_frequent(entity_types[entity['start']: entity['end']])
+                entity_type = utilities.most_frequent(ner[entity['start']: entity['end']])
                 text_to_entity[entity['text']] = entity_type
-                new_entity = {'start': entity['start'], 'end': entity['end'], 'text': entity['text'],
-                              'entity-id': entity['entity_id'], "entity-type": entity_type,
-                              "existing-entity-type":  existing_entity_type}
+                new_entity = {Keys.START.value: entity['start'],
+                              Keys.END.value: entity['end'],
+                              Keys.TEXT.value: entity['text'],
+                              Keys.ENTITY_ID.value: entity['entity_id'],
+                              Keys.ENTITY_TYPE.value: entity_type,
+                              Keys.EXISTING_ENTITY_TYPE.value:  existing_entity_type}
                 entities.append(new_entity)
 
             # adjust events
+            events = []
             for event in instance['golden-event-mentions']:
-                event['event-type'] = self.get_event_type(event['event_type'])
-                del event['event_type']
+                arguments = []
                 for arg in event['arguments']:
-                    arg["existing-entity-type"] = arg["entity-type"]
-                    arg["entity-type"] = text_to_entity[arg['text']]
-                    role = arg['role']
-                    arg["role"] = self.get_role(role)
+                    new_arg = {
+                        Keys.START.value: arg['start'],
+                        Keys.END.value: arg['end'],
+                        Keys.TEXT.value: arg['text'],
+                        Keys.EXISTING_ENTITY_TYPE.value: arg["entity-type"],
+                        Keys.ENTITY_TYPE.value: text_to_entity[arg['text']],
+                        Keys.ROLE.value: self.get_role(arg['role'])
+                    }
+                    arguments.append(new_arg)
+                events.append({
+                    Keys.ARGUMENTS.value: arguments,
+                    Keys.EVENT_TYPE.value: self.get_event_type(event['event_type']),
+                    Keys.TRIGGER.value: event['trigger']
+                })
 
             new_instance = {
-                'origin': self.origin,
-                'id': new_instance_id,
-                'no-of-sentences': no_of_sentences,
-                'sentences': sentences,
-                'text': text_sentence,
-                'words': words,
-                'lemma': lemma,
-                'pos-tags': pos_tags,
-                'ner': entity_types,
-                'golden-entity-mentions': entities,
-                'golden-event-mentions': instance['golden-event-mentions'],
-                'penn-treebank': penn_treebanks,
-                "dependency-parsing": dependency_parsing,
-                'chunks': chunks
+                Keys.ORIGIN.value: self.origin,
+                Keys.ID.value: new_instance_id,
+                Keys.NO_SENTENCES.value: no_of_sentences,
+                Keys.SENTENCES.value: sentences,
+                Keys.TEXT.value: text_sentence,
+                Keys.WORDS.value: words,
+                Keys.LEMMA.value: lemma,
+                Keys.POS_TAGS.value: pos_tags,
+                Keys.NER.value: ner,
+                Keys.ENTITIES_MENTIONED.value: entities,
+                Keys.EVENTS_MENTIONED.value: events,
+                Keys.PENN_TREEBANK.value: penn_treebanks,
+                Keys.DEPENDENCY_PARSING.value: dependency_parsing,
+                Keys.CHUNKS.value: chunks
             }
             new_instances.append(new_instance)
             if len(new_instances) == self.batch_size:
@@ -107,9 +118,8 @@ class AceTransformer(Transformer):
         self.log.info("Transformation of ACE completed in " + str(round(time.monotonic() - start_time, 3)) + "sec")
 
     def get_event_type(self, event_type):
-        event_type = self.process_event(event_type)
+        event_type = event_type.replace(":", ".")
         return utilities.find_most_similar(event_type, self.events)
 
     def get_role(self, role):
         return utilities.find_most_similar(role, self.roles)
-
