@@ -26,7 +26,7 @@ def iob_format(iterable):
 
 class Transformer:
 
-    def __init__(self, model):
+    def __init__(self, model, disable_mapping):
         self.log = logging.getLogger()
         self.log.setLevel(logging.INFO)
         self.log.info("Initializing Transformer")
@@ -40,6 +40,7 @@ class Transformer:
         self.events_mapper = Configuration.events_mapping
         self.events = Configuration.events
         self.batch_size = 50
+        self.disable_mapping = disable_mapping
 
     def advanced_parsing(self, text):
         words = []
@@ -101,3 +102,9 @@ class Transformer:
     @abstractmethod
     def transform(self, output_path):
         pass
+
+    def get_event_type(self, event_type):
+        if self.disable_mapping:
+            return event_type
+        else:
+            return self.events_mapper[event_type]

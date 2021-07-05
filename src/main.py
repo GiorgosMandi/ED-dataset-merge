@@ -12,7 +12,7 @@ import logging
 #  1. TICK adjust everything based on Keys ENUM
 #  2. TICK complete schema validator
 #  3. TICK fix mentioned bugs
-#  4. add argument for mapping
+#  4. TICK add argument for mapping
 #  5. evaluate script
 #  6. empty event types of EMM
 
@@ -31,7 +31,10 @@ parser.add_argument('-rams', metavar='rams_path', type=str, help='Path to the RA
 parser.add_argument('-m2e2', metavar='m2e2_path', type=str, help='Path to the M2E2 dataset')
 parser.add_argument('-ace', metavar='ace_path', type=str, help='Path to the pre-processed ACE dataset')
 
+parser.add_argument('-disableMapping', action='store_true', help='Disable event type mapping matching ')
+
 args = parser.parse_args()
+disable_mapping = args.disableMapping
 if not os.path.exists(args.coreNLP):
     log.error("CoreNLP path does not exist")
     exit(1)
@@ -62,7 +65,7 @@ if args.rams:
     if os.path.exists(args.rams):
         log.info("Starts the transformation of RAMS ")
         log.info("RAMS source: '" + args.rams + "'")
-        transformer = RamsTransformer(args.rams, coreNLP)
+        transformer = RamsTransformer(args.rams, coreNLP, disable_mapping)
         transformer.transform(output_path)
     else:
         log.error("RAMS path '" + args.rams + "' does not exist")
@@ -71,7 +74,7 @@ if args.emm:
     if os.path.exists(args.emm):
         log.info("Starts the transformation of EMM ")
         log.info("EMM source: '" + args.emm + "'")
-        transformer = EmmTransformer(args.emm, coreNLP)
+        transformer = EmmTransformer(args.emm, coreNLP, disable_mapping)
         transformer.transform(output_path)
     else:
         log.error("EMM path '" + args.emm + "' does not exist")
@@ -80,7 +83,7 @@ if args.m2e2:
     if os.path.exists(args.m2e2):
         log.info("Starts the transformation of M2E2 ")
         log.info("M2E2 source: '" + args.m2e2 + "'")
-        transformer = M2e2Transformer(args.m2e2, coreNLP)
+        transformer = M2e2Transformer(args.m2e2, coreNLP, disable_mapping)
         transformer.transform(output_path)
     else:
         log.error("M2E2 path '" + args.m2e2 + "' does not exist")
@@ -89,7 +92,7 @@ if args.ace:
     if os.path.exists(args.ace):
         log.info("Starts the transformation of pre-processed ACE ")
         log.info("Ace source: '" + args.ace + "'")
-        transformer = AceTransformer(args.ace, coreNLP)
+        transformer = AceTransformer(args.ace, coreNLP, disable_mapping)
         transformer.transform(output_path)
     else:
         log.error("ACE path '" + args.ace + "' does not exist")

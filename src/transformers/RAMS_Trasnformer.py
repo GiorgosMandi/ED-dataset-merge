@@ -9,8 +9,8 @@ import json
 
 class RamsTransformer(Transformer):
 
-    def __init__(self, rams_path, model):
-        super().__init__(model)
+    def __init__(self, rams_path, model, disable_mapping):
+        super().__init__(model, disable_mapping)
         self.log.info("Initializing RamsTransformer")
         self.id_base = "RAMS-instance-"
         self.rams_path = rams_path
@@ -121,7 +121,7 @@ class RamsTransformer(Transformer):
 
                 # process events - construct event-triples
                 event_type = instance['evt_triggers'][0][2][0][0]
-                event_type = self.events_mapper[event_type]
+                event_type = self.get_event_type(event_type)
                 events_triples = []
                 arguments = []
                 for triple in instance['gold_evt_links']:

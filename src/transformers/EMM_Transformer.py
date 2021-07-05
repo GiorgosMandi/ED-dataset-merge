@@ -9,8 +9,8 @@ import time
 
 class EmmTransformer(Transformer):
 
-    def __init__(self, edd_path, model):
-        super().__init__(model)
+    def __init__(self, edd_path, model, disable_mapping):
+        super().__init__(model, disable_mapping)
         self.log.info("Initializing EmmTransformer")
         self.id_base = "EMM-instance-"
         self.path = edd_path
@@ -88,7 +88,7 @@ class EmmTransformer(Transformer):
             for j, result in enumerate(instance_result):
                 if result['from_name'] == "ev_type":
                     event_type = result['value']['choices'][0].lower()
-                    event_type = self.events_mapper[event_type]
+                    event_type = self.get_event_type(event_type)
                 else:
                     value = result['value']
                     entity_text = value['text']

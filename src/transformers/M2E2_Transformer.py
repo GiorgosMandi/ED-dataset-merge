@@ -8,8 +8,8 @@ import re
 
 class M2e2Transformer(Transformer):
 
-    def __init__(self, m2e2_path, model):
-        super().__init__(model)
+    def __init__(self, m2e2_path, model, disable_mapping):
+        super().__init__(model, disable_mapping)
         self.log.info("Initializing M2e2Transformer")
         self.id_base = "M2E2-instance-"
         self.m2e2_path = m2e2_path
@@ -83,7 +83,7 @@ class M2e2Transformer(Transformer):
             events = []
             if len(instance['golden-event-mentions']) > 0:
                 for event in instance['golden-event-mentions']:
-                    event_type = self.events_mapper[event['event_type']]
+                    event_type = self.get_event_type(event['event_type'])
                     event['event_type'] = event_type
                     arguments = []
                     for arg in event['arguments']:

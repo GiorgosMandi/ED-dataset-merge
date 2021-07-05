@@ -8,8 +8,8 @@ import time
 
 class AceTransformer(Transformer):
 
-    def __init__(self, ace_path, model):
-        super().__init__(model)
+    def __init__(self, ace_path, model, disable_mapping):
+        super().__init__(model, disable_mapping)
         self.log.info("Initializing AceTransformer")
         self.id_base = "ACE-instance-"
         self.path = ace_path
@@ -118,6 +118,8 @@ class AceTransformer(Transformer):
         self.log.info("Transformation of ACE completed in " + str(round(time.monotonic() - start_time, 3)) + "sec")
 
     def get_event_type(self, event_type):
+        if self.disable_mapping:
+            return event_type
         event_type = event_type.replace(":", ".")
         return utilities.find_most_similar(event_type, self.events)
 

@@ -8,7 +8,8 @@ These four datasets are the following:
   - [ACE2005](https://catalog.ldc.upenn.edu/LDC2006T06) after being preprocessed by [ace2005-preprocessing](https://github.com/nlpcl-lab/ace2005-preprocessing)
   - Event Extraction Annotated Data from EMM.
 
-You can download the complete dataset [here](https://drive.google.com/file/d/1PoYHTHuUW_SN2IZqbEMnnRmvF6PTAJMJ/view?usp=sharing)
+You can download the complete dataset [here](https://drive.google.com/file/d/1PoYHTHuUW_SN2IZqbEMnnRmvF6PTAJMJ/view?usp=sharing). By default, 
+the dataset will contain the Event Types of ACE.
 
 ## Build Instructions
     
@@ -27,7 +28,7 @@ Then, install requirements using:
 
 ## Execution
 
-To execute  *EventDetectionDataset-Unifier*, users must provide some arguments. There is two types of input arguments, execution arguments 
+To execute  *EventDetectionDataset-Unifier*, users must provide some arguments. There are two types of input arguments, execution arguments 
 and dataset related arguments. 
 
 The **Execution Arguments** are the following:
@@ -36,6 +37,7 @@ The **Execution Arguments** are the following:
 - *-out path/to/output.jsonlines*: Path to the output. **WARNING**:  *EventDetectionDataset-Unifier* opens this file in append mode, so in case it already exists, the results will be appended to its existing content. (Required)
 - *-memory X*: The size of heap memory to provide to coreNLP.  X must be an integer.  (Optional, default value is 3)
 - *-timeout X*: CoreNLP's timeout processing time.  X must be an integer.  (Optional, default value is 10s)
+- *-disableMapping*: Disable mapping the event types of the dataset to the ones of ACE.
 - *-h*:        Print instructions.
 
 The **Datasets Arguments** are the following:
