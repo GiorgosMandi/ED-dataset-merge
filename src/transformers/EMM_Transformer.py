@@ -98,8 +98,9 @@ class EmmTransformer(Transformer):
                     indices = self.search_text_in_list(entity_char_start, entity_char_end, initial_text, entity_text, words)
                     entity_start = indices[Keys.START.value]
                     entity_end = indices[Keys.END.value]
-                    if not (entity_end and entity_start):
+                    if entity_start is None or entity_end is None:
                         continue
+                    entity_text = ' '.join(words[entity_start: entity_end])
                     role = value['labels'][0].lower()
                     if role == 'event trigger':
                         trigger = {Keys.START.value: entity_start,
@@ -167,30 +168,39 @@ class EmmTransformer(Transformer):
             all_tokens = [token.strip(",. \n\'\"-") for token in whole_text.split()]
             entity_text = whole_text[start_:end_].replace("(", " LRB ").replace(")", " RRB ").split()
 
-            try:
-                # find first word in the whole text
-                first_word = entity_text[0]
-                # find its index
-                initial_start = all_tokens.index(first_word)
-                # give some buffer
-                initial_start = initial_start - 2 if initial_start > 2 else 0
-            except ValueError:
-                initial_start = 0
+            # find first word in the whole text
+            first_word = entity_text[0]
+            # find all indices in text
+            initial_start_indices = [i for i, x in enumerate(all_tokens) if x == first_word]
+            if len(initial_start_indices) == 0:
+                initial_start_indices = [0]
 
-            # get the word in the parsed document - this is the one we seek
+            # find last word in the whole text
+            last_word = entity_text[-1]
+            # find all indices in text
+            initial_end_indices = [i for i, x in enumerate(all_tokens) if x == last_word]
+            if len(initial_end_indices) == 0:
+                initial_end_indices = [-1]
+
+            # from all indices, find the most appropriate
+            initial_start = initial_start_indices[0]
+            initial_end = initial_end_indices[0]
+            for s in initial_start_indices:
+                for e in initial_end_indices:
+                    if e-s == len(entity_text)-1 and e > s:
+                        initial_start = s
+                        initial_end = e
+
             parsed_first_word = parsed[0]
+            # give some extra buffer
+            initial_start = initial_start - 2 if initial_start > 2 else 0
             # find the starting index in the parsed list of words
             start = parsed_words[initial_start:].index(parsed_first_word) + initial_start
 
-            try:
-                # same for last word
-                last_word = entity_text[-1]
-                initial_end = all_tokens.index(last_word)
-                initial_end = initial_end + 2 if initial_end > len(parsed_words)-3 else len(parsed_words) - 1
-            except ValueError:
-                initial_end = -1
-
             parsed_last_word = parsed[-1]
+            # give some extra buffer
+            initial_end = initial_end + 2 if initial_end > len(parsed_words)-3 else len(parsed_words) - 1
+            # find the ending index in the parsed list of words
             end = parsed_words[initial_start:initial_end].index(parsed_last_word) + initial_start
 
             return {Keys.START.value: start, Keys.END.value: end+1}

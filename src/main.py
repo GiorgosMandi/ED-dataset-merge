@@ -9,9 +9,9 @@ import os
 import logging
 
 # TODO:
-#  1. adjust everything based on Keys ENUM 
-#  2. complete schema validator
-#  3. fix mentioned bugs
+#  1. TICK adjust everything based on Keys ENUM
+#  2. TICK complete schema validator
+#  3. TICK fix mentioned bugs
 #  4. add argument for mapping
 #  5. evaluate script
 #  6. empty event types of EMM

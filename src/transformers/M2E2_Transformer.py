@@ -58,14 +58,15 @@ class M2e2Transformer(Transformer):
                 indices = self.search_text_in_list(entity['start'], entity['end'], entity_text, words)
                 entity_start = indices[Keys.START.value]
                 entity_end = indices[Keys.END.value]
-                if not (entity_start and entity_end):
+                if entity_start is None or entity_end is None:
+                    successfully = False
                     continue
-                text = ' '.join(words[entity_start: entity_end])
+                entity_text = ' '.join(words[entity_start: entity_end])
                 new_ner = utilities.most_frequent(ner[entity_start: entity_end])
                 new_entity = {Keys.ENTITY_ID.value: entity_id,
                               Keys.START.value: entity_start,
                               Keys.END.value: entity_end,
-                              Keys.TEXT.value: text,
+                              Keys.TEXT.value: entity_text,
                               Keys.ENTITY_TYPE.value: new_ner,
                               Keys.EXISTING_ENTITY_TYPE.value: existing_ner
                               }
@@ -74,7 +75,8 @@ class M2e2Transformer(Transformer):
                 text_to_entity[text_in_dataset] = new_entity
 
             if not successfully:
-                self.log.error("Failed twice to parse, skipping instance")
+                self.log.error("\n")
+                self.log.error("Failed to parse, skipping instance")
                 continue
 
             # adjust events
@@ -91,16 +93,35 @@ class M2e2Transformer(Transformer):
                         # there are also inconsistencies between arguments' text and entities' text
                         text_in_dataset = ' '.join(instance['words'][arg['start']: arg['end']])
                         corresponding_entity = text_to_entity[text_in_dataset]
-                        arguments.append({Keys.START.value: corresponding_entity['start'],
-                                          Keys.END.value: corresponding_entity['end'],
-                                          Keys.TEXT.value: corresponding_entity['text'],
+                        arguments.append({Keys.START.value: corresponding_entity[Keys.START.value],
+                                          Keys.END.value: corresponding_entity[Keys.END.value],
+                                          Keys.TEXT.value: corresponding_entity[Keys.TEXT.value],
                                           Keys.ROLE.value: role,
-                                          Keys.ENTITY_TYPE.value: corresponding_entity['entity-type'],
-                                          Keys.EXISTING_ENTITY_TYPE.value: corresponding_entity['existing-entity-type']
+                                          Keys.ENTITY_TYPE.value: corresponding_entity[Keys.ENTITY_TYPE.value],
+                                          Keys.EXISTING_ENTITY_TYPE.value: corresponding_entity[Keys.EXISTING_ENTITY_TYPE.value]
                                           })
+
+                    trigger_text = ' '.join(instance['words'][event['trigger']['start']:event['trigger']['end']])
+                    indices = self.search_text_in_list(event['trigger']['start'], event['trigger']['end'], trigger_text, words)
+                    trigger_start = indices[Keys.START.value]
+                    trigger_end = indices[Keys.END.value]
+                    if trigger_start is None or trigger_end is None:
+                        successfully = False
+                        continue
+                    trigger_text = ' '.join(words[trigger_start: trigger_end])
+                    trigger = {
+                        Keys.TEXT.value: trigger_text,
+                        Keys.START.value: trigger_start,
+                        Keys.END.value: trigger_end
+                    }
+
                     events.append({Keys.ARGUMENTS.value: arguments,
-                                   Keys.TRIGGER.value: event['trigger'],
+                                   Keys.TRIGGER.value: trigger,
                                    Keys.EVENT_TYPE.value: event_type})
+            if not successfully:
+                self.log.error("\n")
+                self.log.error("Failed to parse trigger, skipping instance")
+                continue
 
             new_instance = {
                 Keys.ORIGIN.value: self.origin,
@@ -124,7 +145,6 @@ class M2e2Transformer(Transformer):
                 new_instances = []
         utilities.write_jsons(new_instances, output_path)
         self.log.info("Transformation of M2E2 completed in " + str(round(time.monotonic() - start_time, 3)) + "sec")
-
 
     def search_text_in_list(self, initial_start, initial_end, text, parsed_words):
 
