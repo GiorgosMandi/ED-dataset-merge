@@ -96,10 +96,10 @@ events_mapping = {
     "release people": "JUSTICE.RELEASE-PAROLE",
     "protest/riot": "CONFLICT.DEMONSTRATE",
     "terrorist/suicide attack": "CONFLICT.ATTACK",
-    "exhibit force posture": "CONFLICT.ATTACK",
+    "exhibit force posture": "TRANSACTION.TRANSFER-OWNERSHIP",
     "assault": "CONFLICT.ATTACK",
     "cyber attack": "CONFLICT.ATTACK",
-    "restrict/reduce rights": "JUSTICE.CHARGE-INDICT",
+    "restrict/reduce rights": "JUSTICE.CONVICT",
     "arrest": "JUSTICE.ARREST",
 
     "contact.commandorder.correspondence": "CONTACT.MEET",
