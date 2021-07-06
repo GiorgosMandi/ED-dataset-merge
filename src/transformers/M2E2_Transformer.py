@@ -3,7 +3,6 @@ from .Transformer import Transformer
 from ..utils import utilities
 from ..conf.Constants import Keys
 import time
-import re
 
 
 class M2e2Transformer(Transformer):
@@ -15,16 +14,23 @@ class M2e2Transformer(Transformer):
         self.m2e2_path = m2e2_path
         self.origin = "M2E2"
 
-    # transform dataset to the common schema
-    # WARNING: Dataset contains errors and inconsistency:
-    #   - in its word list, contains characters that do not exist in the actual sentence
-    #   - sometimes the '-' separated words are treated as one word and other times as two
     def transform(self, output_path):
+        """
+        Transform dataset into the common schema and store the results
+        in the output path. Storing is performed in batches.
+        Actions:
+            - Parse text and produce text-based features
+            - Parse entities and adjust them to the new list of words
+            - Parse event triples and adjust them to the new list of words
+        :param output_path: output path
+        :return:  None
+        """
         self.log.info("Starts transformation of M2E2")
         start_time = time.monotonic()
-
-        new_instances = []
         i = -1
+        new_instances = []
+
+        # read file and iterate over instances
         m2e2_jsons = utilities.read_json(self.m2e2_path)
         for instance in tqdm(m2e2_jsons):
             i += 1
@@ -34,19 +40,19 @@ class M2e2Transformer(Transformer):
                 parsing = self.advanced_parsing(text_sentence)
             except ValueError:
                 continue
+            # extract parsing results
             words = parsing[Keys.WORDS.value]
             lemma = parsing[Keys.LEMMA.value]
             pos_tags = parsing[Keys.POS_TAGS.value]
             ner = parsing[Keys.NER.value]
             sentences = parsing[Keys.SENTENCES.value]
-
             # sentence centric
             penn_treebanks = parsing[Keys.PENN_TREEBANK.value]
             dependency_parsing = parsing[Keys.PENN_TREEBANK.value]
             chunks = parsing[Keys.CHUNKS.value]
             no_of_sentences = len(sentences)
 
-            # adjust entities
+            # parse entities
             text_to_entity = {}
             entities = []
             successfully = True
@@ -76,10 +82,10 @@ class M2e2Transformer(Transformer):
 
             if not successfully:
                 self.log.error("\n")
-                self.log.error("Failed to parse, skipping instance")
+                self.log.error("Failed to parse entity, skipping instance")
                 continue
 
-            # adjust events
+            # parse events
             events = []
             if len(instance['golden-event-mentions']) > 0:
                 for event in instance['golden-event-mentions']:
@@ -107,6 +113,8 @@ class M2e2Transformer(Transformer):
                     trigger_end = indices[Keys.END.value]
                     if trigger_start is None or trigger_end is None:
                         successfully = False
+                        self.log.error("\n")
+                        self.log.error("Failed to parse trigger, skipping instance")
                         continue
                     trigger_text = ' '.join(words[trigger_start: trigger_end])
                     trigger = {
@@ -119,10 +127,8 @@ class M2e2Transformer(Transformer):
                                    Keys.TRIGGER.value: trigger,
                                    Keys.EVENT_TYPE.value: event_type})
             if not successfully:
-                self.log.error("\n")
-                self.log.error("Failed to parse trigger, skipping instance")
                 continue
-
+            # create new instance
             new_instance = {
                 Keys.ORIGIN.value: self.origin,
                 Keys.ID.value: new_instance_id,
@@ -140,6 +146,8 @@ class M2e2Transformer(Transformer):
                 Keys.CHUNKS.value: chunks
             }
             new_instances.append(new_instance)
+
+            # write results if we reached batch size
             if len(new_instances) == self.batch_size:
                 utilities.write_jsons(new_instances, output_path)
                 new_instances = []

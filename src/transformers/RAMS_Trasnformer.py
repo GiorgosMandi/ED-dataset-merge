@@ -17,6 +17,10 @@ class RamsTransformer(Transformer):
         self.origin = "RAMS"
 
     def export_types(self):
+        """
+        Find all the distinct roles and event types
+        :return: a set of roles and event types
+        """
         events = set()
         roles = set()
         with open(self.rams_path) as json_file:
@@ -33,32 +37,45 @@ class RamsTransformer(Transformer):
 
     # transform dataset to the common schema
     def transform(self, output_path):
+        """
+                Transform dataset into the common schema and store the results
+                in the output path. Storing is performed in batches.
+                Actions:
+                    - Parse text and produce text-based features
+                    - Parse entities and adjust them to the new list of words
+                    - Parse event triples and adjust them to the new list of words
+                :param output_path: output path
+                :return:  None
+                """
         self.log.info("Starts transformation of RAMS")
         start_time = time.monotonic()
         new_instances = []
         i = -1
+        # read dataset and iterate over its lines
         with open(self.rams_path) as json_file:
             for inline_json in tqdm(json_file):
                 instance = json.loads(inline_json)
-
-                i += 1
-                default_list_of_words = [w for sentence in instance['sentences'] for w in sentence]
-                new_instance_id = self.id_base + str(i) + "-" + instance['doc_key']
-                # parsing sentences
-                text_sentences = " ".join([t for s in instance['sentences'] for t in s])
                 successfully = True
+                i += 1
 
+                # list of words as it is in the dataset
+                default_list_of_words = [w for sentence in instance['sentences'] for w in sentence]
+
+                new_instance_id = self.id_base + str(i) + "-" + instance['doc_key']
+
+                # parsing sentences - advanced_parsing expects all sentences as plain text
+                text_sentences = " ".join([t for s in instance['sentences'] for t in s])
                 all_sentences = ". ".join([' '.join(sentence) for sentence in instance['sentences']])
                 try:
                     parsing = self.advanced_parsing(all_sentences)
                 except ValueError:
                     break
+                # extract results
                 words = parsing[Keys.WORDS.value]
                 lemma = parsing[Keys.LEMMA.value]
                 pos_tags = parsing[Keys.POS_TAGS.value]
                 ner = parsing[Keys.NER.value]
                 sentences = parsing[Keys.SENTENCES.value]
-
                 # sentence centric
                 penn_treebanks = parsing[Keys.PENN_TREEBANK.value]
                 dependency_parsing = parsing[Keys.PENN_TREEBANK.value]
@@ -80,7 +97,7 @@ class RamsTransformer(Transformer):
                     if entity_start is None or entity_end is None:
                         successfully = False
                         self.log.error("\n")
-                        self.log.error("Failed to parse, skipping instance")
+                        self.log.error("Failed to parse entity, skipping instance")
                         break
                     entity_text = ' '.join(words[entity_start: entity_end])
 
@@ -112,7 +129,7 @@ class RamsTransformer(Transformer):
                 trigger_end = indices[Keys.END.value]
                 if trigger_start is None or trigger_end is None:
                     self.log.error("\n")
-                    self.log.error("Failed to parse, skipping instance")
+                    self.log.error("Failed to parse trigger, skipping instance")
                     continue
                 trigger_text = ' '.join(words[trigger_start: trigger_end])
                 trigger = {Keys.START.value: trigger_start,
@@ -134,7 +151,7 @@ class RamsTransformer(Transformer):
                     arg_end = indices[Keys.END.value]
                     if arg_start is None or arg_end is None:
                         self.log.error("\n")
-                        self.log.error("Failed to parse, skipping instance")
+                        self.log.error("Failed to parse argument, skipping instance")
                         successfully = False
                         break
 
@@ -155,6 +172,7 @@ class RamsTransformer(Transformer):
                 events_triples.append({Keys.ARGUMENTS.value: arguments,
                                        Keys.TRIGGER.value: trigger,
                                        Keys.EVENT_TYPE.value: event_type})
+                # create ne instance
                 new_instance = {
                     Keys.ORIGIN.value: self.origin,
                     Keys.ID.value: new_instance_id,
@@ -172,6 +190,8 @@ class RamsTransformer(Transformer):
                     Keys.CHUNKS.value: chunks
                 }
                 new_instances.append(new_instance)
+
+                # write results if we reached batch size
                 if len(new_instances) == self.batch_size:
                     utilities.write_jsons(new_instances, output_path)
                     new_instances = []

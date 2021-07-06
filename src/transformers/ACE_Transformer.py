@@ -29,8 +29,17 @@ class AceTransformer(Transformer):
         utilities.write_iterable(roles_path, roles)
         utilities.write_iterable(event_paths, events)
 
-    # transform dataset to the common schema
     def transform(self, output_path):
+        """
+        Transform dataset into the common schema and store the results
+        in the output path. Storing is performed in batches.
+        Actions:
+            - Parse text and produce text-based features
+            - Parse entities and adjust them to the new list of words
+            - Parse event triples and adjust them to the new list of words
+        :param output_path: output path
+        :return:  None
+        """
         start_time = time.monotonic()
 
         self.log.info("Starts transformation of ACE")
@@ -46,13 +55,13 @@ class AceTransformer(Transformer):
                 parsing = self.advanced_parsing(instance['sentence'])
             except ValueError:
                 continue
+            # extract parsing results
             text_sentence = parsing[Keys.TEXT.value]
             sentences = parsing[Keys.SENTENCES.value]
             words = parsing[Keys.WORDS.value]
             lemma = parsing[Keys.LEMMA.value]
             pos_tags = parsing[Keys.POS_TAGS.value]
             ner = parsing[Keys.NER.value]
-
             # sentence centric
             penn_treebanks = parsing[Keys.PENN_TREEBANK.value]
             dependency_parsing = parsing[Keys.DEPENDENCY_PARSING.value]
@@ -94,6 +103,7 @@ class AceTransformer(Transformer):
                     Keys.TRIGGER.value: event['trigger']
                 })
 
+            # create new instance
             new_instance = {
                 Keys.ORIGIN.value: self.origin,
                 Keys.ID.value: new_instance_id,
@@ -111,6 +121,8 @@ class AceTransformer(Transformer):
                 Keys.CHUNKS.value: chunks
             }
             new_instances.append(new_instance)
+
+            # write results if we reached batch size
             if len(new_instances) == self.batch_size:
                 utilities.write_jsons(new_instances, output_path)
                 new_instances = []

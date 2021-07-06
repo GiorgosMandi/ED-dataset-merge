@@ -43,6 +43,11 @@ class Transformer:
         self.disable_mapping = disable_mapping
 
     def advanced_parsing(self, text):
+        """
+        extract text-based features using coreNLP based on the input text
+        :param text:  input text
+        :return: a dictionary of features
+        """
         words = []
         lemma = []
         pos_tags = []
@@ -54,6 +59,8 @@ class Transformer:
         texts = []
         next_start = 0
         text = re.sub("-", " - ", text)
+
+        # big texts lead to error - so we split text into senteces
         unparsed_sentences = filter(None, text.strip().split(".", ))
         for sentence in unparsed_sentences:
             processed_json = self.coreNLP.annotate(sentence+".", properties={'annotators': 'tokenize,ssplit,pos,'
@@ -84,6 +91,7 @@ class Transformer:
                         ['{}/dep={}/gov={}'.format(dep['dep'], dep['dependent'] - 1, dep['governor'] - 1)
                          for dep in parsed['enhancedPlusPlusDependencies']])
 
+            # failed to parse text, try to increase memory
             except json.decoder.JSONDecodeError:
                 self.log.error("")
                 self.log.error("CoreNLP could not parse the input text. Try increasing timeout and heap memory")
@@ -95,6 +103,12 @@ class Transformer:
                 Keys.CHUNKS.value: chunks}
 
     def chunking(self, words, tags):
+        """
+        Produce the chunks of the list of words
+        :param words: list of words
+        :param tags:  list of part of speech of each word
+        :return:
+        """
         zipped = list(zip(words, tags))
         s_chunks = self.chunker.parseIOB(zipped)
         return [c[1:] for c in s_chunks]
@@ -110,8 +124,19 @@ class Transformer:
             return self.events_mapper[event_type]
 
     def search_text_in_list(self, initial_start, initial_end, text, parsed_words):
-        # to tackle the inconsistencies in the list of words of the dataset,
-        # we find the text to the words of our list and make pointers to
+        """
+                This function finds the pointers of text inside the parsed list of words.
+                    - First we clean the text, as it is expected in the words
+                    - we get its first an last word and we seek it in the list of words
+                    - to tackle inconsistencies, we use spacy parser to parse the text
+
+                :param initial_start:       first index - pointer in the initial list of words (different)
+                :param initial_end:         last index - - pointer in the initial list of words (different)
+                :param text:                the text we seek to find its pointers in our word list
+                :param parsed_words:        our list of words
+                :return:                    a dictionary with the starting and the ending indices -
+                                            None in case we don't find them
+                """
         try:
             new_parsed_words = []
             for i, pw in enumerate(parsed_words):
