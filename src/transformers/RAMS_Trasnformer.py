@@ -113,7 +113,7 @@ class RamsTransformer(Transformer):
                 if trigger_start is None or trigger_end is None:
                     self.log.error("\n")
                     self.log.error("Failed to parse, skipping instance")
-                    break
+                    continue
                 trigger_text = ' '.join(words[trigger_start: trigger_end])
                 trigger = {Keys.START.value: trigger_start,
                            Keys.END.value: trigger_end,

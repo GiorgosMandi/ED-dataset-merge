@@ -115,7 +115,7 @@ class Transformer:
         try:
             new_parsed_words = []
             for i, pw in enumerate(parsed_words):
-                pw = re.sub(r"-|\'", " ", pw).strip(",. \n\'\"-“”")
+                pw = re.sub(r"-|\'|/", " ", pw).strip(",. \n\'\"-“”/")
                 splits = pw.split()
                 for spw in splits:
                     new_parsed_words.append(spw)
@@ -123,7 +123,7 @@ class Transformer:
                 initial_end += len(splits)
             parsed_words = new_parsed_words
 
-            text_ = re.sub(r"-|\.|\'|\"|‘|’|\[|\]|“|”", " ", text).replace("(", " LRB ").replace(")", " RRB ")
+            text_ = re.sub(r"-|\.|\'|\"|‘|’|\[|\]|“|”|/", " ", text).replace("(", " LRB ").replace(")", " RRB ")
             text_ = re.sub(r"(\d\d)pm", r"\1 pm", text_)
             text_ = re.sub(r"(\d\d)am", r"\1 pm", text_)
             parsed = list(filter(lambda name: name.strip(",. \n\'\"-"), [token.text for token in self.nlp(text_)]))

@@ -169,7 +169,7 @@ events_mapping = {
     "government.spy.spy": "GPE.SPY",
     "government.vote.violationspreventvote": "GPE.VOTE",
     "government.agreements.violateagreement": "GPE.AGREEMENT",
-    "transaction.transaction.embargosanction": "GPE.SACTIONS",
+    "transaction.transaction.embargosanction": "GPE.SANCTIONS",
 
     "disaster.fireexplosion.fireexplosion": "ARTIFACT.DESTRUCTION",
     "manufacture.artifact.build": "ARTIFACT.CONSTRUCTION",
