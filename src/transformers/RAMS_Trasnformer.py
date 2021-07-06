@@ -177,36 +177,3 @@ class RamsTransformer(Transformer):
                     new_instances = []
         utilities.write_jsons(new_instances, output_path)
         self.log.info("Transformation of RAMS completed in " + str(round(time.monotonic() - start_time, 3)) + "sec")
-
-    def search_text_in_list(self, initial_start, initial_end, text, parsed_words):
-        # to tackle the inconsistencies in the list of words of the dataset,
-        # we find the text to the words of our list and make pointers to
-        try:
-            new_parsed_words = []
-            for i, pw in enumerate(parsed_words):
-                pw = re.sub(r"-|\'", " ", pw).strip(",. \n\'\"-")
-                splits = pw.split()
-                for spw in splits:
-                    new_parsed_words.append(spw)
-                initial_start -= len(splits)
-                initial_end += len(splits)
-            parsed_words = new_parsed_words
-
-            text_ = re.sub(r"-|\.|\'|\"|‘|’|\[|\]", " ", text).replace("(", " LRB ").replace(")", " RRB ")
-            text_ = re.sub(r"(\d\d)pm", r"\1 pm", text_)
-            text_ = re.sub(r"(\d\d)am", r"\1 pm", text_)
-            parsed = list(filter(lambda name: name.strip(",. \n\'\"-"), [token.text for token in self.nlp(text_)]))
-
-            entity_first_word = parsed[0]
-            initial_start = initial_start - 2 if initial_start > 2 else 0
-            start = parsed_words[initial_start:].index(entity_first_word) + initial_start
-
-            entity_last_word = parsed[-1]
-            initial_end = initial_end + 2 if initial_end > len(parsed_words) - 3 else len(parsed_words) - 1
-            end = parsed_words[initial_start:initial_end].index(entity_last_word) + initial_start
-
-            return {Keys.START.value: start, Keys.END.value: end+1}
-        except ValueError:
-            self.log.error("\n")
-            self.log.error("Not able to find '"+text+"' in list of words")
-            return {Keys.START.value: None, Keys.END.value: None}
