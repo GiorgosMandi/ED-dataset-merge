@@ -4,6 +4,7 @@ import argparse
 import logging
 import sys
 from tqdm import tqdm
+import os
 
 log = logging.getLogger("VALIDATOR")
 log.setLevel(logging.DEBUG)
@@ -100,6 +101,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Give arguments")
     parser.add_argument('-input', metavar='--input', type=str, help='Path to the json to validate', required=True)
     args = parser.parse_args()
+
+    if not os.path.exists(args.input):
+        log.error("Path '" + args.input + "' does not exist")
+        exit(1)
+
     jsons = utilities.read_jsonlines(args.input)
     validator = ValidateTransformation()
     log.info("Starting validation")
