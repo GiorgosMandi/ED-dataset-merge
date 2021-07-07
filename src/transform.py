@@ -15,7 +15,7 @@ import sys
 #  3. TICK fix mentioned bugs
 #  4. TICK add argument for mapping
 #  5. evaluate script
-#  6. empty event types of EMM
+#  6. TICK empty event types of EMM
 
 log = logging.getLogger("TRANSFORMER")
 log.setLevel(logging.DEBUG)
@@ -28,7 +28,7 @@ log.addHandler(consoleOUT)
 
 log_root = logging.getLogger()
 consoleER = logging.StreamHandler(sys.stdout)
-consoleER.setLevel(logging.ERROR)
+consoleER.setLevel(logging.FATAL)
 consoleER.setFormatter(formatter)
 consoleER.terminator = ""
 log_root.addHandler(consoleER)
