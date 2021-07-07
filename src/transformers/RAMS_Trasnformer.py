@@ -69,7 +69,7 @@ class RamsTransformer(Transformer):
                 try:
                     parsing = self.advanced_parsing(all_sentences)
                 except ValueError:
-                    break
+                    continue
                 # extract results
                 words = parsing[Keys.WORDS.value]
                 lemma = parsing[Keys.LEMMA.value]
