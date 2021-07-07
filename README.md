@@ -8,7 +8,7 @@ These four datasets are the following:
   - [ACE2005](https://catalog.ldc.upenn.edu/LDC2006T06) after being preprocessed by [ace2005-preprocessing](https://github.com/nlpcl-lab/ace2005-preprocessing)
   - Event Extraction Annotated Data from EMM.
 
-You can download the complete dataset [here](https://drive.google.com/file/d/1PoYHTHuUW_SN2IZqbEMnnRmvF6PTAJMJ/view?usp=sharing). By default, 
+You can download the complete dataset [here](https://drive.google.com/file/d/1brSUYPUn62p_oCnp0lmlBF6ODBy9WdRi/view?usp=sharing). By default, 
 the dataset will contain the Event Types of ACE.
 
 ## Build Instructions
