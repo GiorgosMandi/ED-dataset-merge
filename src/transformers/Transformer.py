@@ -27,8 +27,8 @@ def iob_format(iterable):
 class Transformer:
 
     def __init__(self, model, disable_mapping):
-        self.log = logging.getLogger()
-        self.log.setLevel(logging.INFO)
+        self.log = logging.getLogger("TRANSFORMER")
+
         self.log.info("Initializing Transformer")
         self.nlp = spacy.load('en_core_web_sm')
         self.coreNLP = model
@@ -93,8 +93,7 @@ class Transformer:
 
             # failed to parse text, try to increase memory
             except json.decoder.JSONDecodeError:
-                self.log.error("")
-                self.log.error("CoreNLP could not parse the input text. Try increasing timeout and heap memory")
+                self.log.warning("CoreNLP could not parse the input text. Try increasing timeout and heap memory")
                 raise ValueError("CoreNLP could not parse the input text. Try increasing timeout and heap memory")
 
         return {Keys.SENTENCES.value: sentences, Keys.TEXT.value: ' '.join(texts), Keys.WORDS.value: words,
@@ -140,7 +139,7 @@ class Transformer:
         try:
             new_parsed_words = []
             for i, pw in enumerate(parsed_words):
-                pw = re.sub(r"-|\'|/", " ", pw).strip(",. \n\'\"-“”/")
+                pw = re.sub(r"-|\'|/|_", " ", pw).strip(",. \n\'\"-“”/")
                 splits = pw.split()
                 for spw in splits:
                     new_parsed_words.append(spw)
@@ -148,7 +147,7 @@ class Transformer:
                 initial_end += len(splits)
             parsed_words = new_parsed_words
 
-            text_ = re.sub(r"-|\.|\'|\"|‘|’|\[|\]|“|”|/", " ", text).replace("(", " LRB ").replace(")", " RRB ")
+            text_ = re.sub(r"-|\.|\'|\"|‘|’|\[|\]|“|”|/|_", " ", text).replace("(", " LRB ").replace(")", " RRB ")
             text_ = re.sub(r"(\d\d)pm", r"\1 pm", text_)
             text_ = re.sub(r"(\d\d)am", r"\1 pm", text_)
             parsed = list(filter(lambda name: name.strip(",. \n\'\"-"), [token.text for token in self.nlp(text_)]))
@@ -163,6 +162,5 @@ class Transformer:
 
             return {Keys.START.value: start, Keys.END.value: end+1}
         except ValueError:
-            self.log.error("\n")
-            self.log.error("Not able to find '"+text+"' in list of words")
+            self.log.warning("Not able to find '"+text+"' in list of words")
             return {Keys.START.value: None, Keys.END.value: None}

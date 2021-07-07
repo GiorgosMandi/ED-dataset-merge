@@ -24,6 +24,7 @@ class RamsTransformer(Transformer):
         events = set()
         roles = set()
         with open(self.rams_path) as json_file:
+            print()
             for inline_json in tqdm(json_file):
                 instance = json.loads(inline_json)
                 for triple in instance['gold_evt_links']:
@@ -47,12 +48,13 @@ class RamsTransformer(Transformer):
                 :param output_path: output path
                 :return:  None
                 """
-        self.log.info("Starts transformation of RAMS")
+        self.log.info("Starting the transformation of RAMS")
         start_time = time.monotonic()
         new_instances = []
         i = -1
         # read dataset and iterate over its lines
         with open(self.rams_path) as json_file:
+            print()
             for inline_json in tqdm(json_file):
                 instance = json.loads(inline_json)
                 successfully = True
@@ -96,8 +98,7 @@ class RamsTransformer(Transformer):
                     entity_end = indices[Keys.END.value]
                     if entity_start is None or entity_end is None:
                         successfully = False
-                        self.log.error("\n")
-                        self.log.error("Failed to parse entity, skipping instance")
+                        self.log.warning("Failed to parse entity, skipping instance")
                         break
                     entity_text = ' '.join(words[entity_start: entity_end])
 
@@ -116,8 +117,7 @@ class RamsTransformer(Transformer):
 
                 # process trigger
                 if len(instance['evt_triggers']) > 1:
-                    self.log.error("\n")
-                    self.log.error("More triggers than expected")
+                    self.log.warning("More triggers than expected")
                     continue
 
                 # process text of trigger
@@ -128,8 +128,7 @@ class RamsTransformer(Transformer):
                 trigger_start = indices[Keys.START.value]
                 trigger_end = indices[Keys.END.value]
                 if trigger_start is None or trigger_end is None:
-                    self.log.error("\n")
-                    self.log.error("Failed to parse trigger, skipping instance")
+                    self.log.warning("Failed to parse trigger, skipping instance")
                     continue
                 trigger_text = ' '.join(words[trigger_start: trigger_end])
                 trigger = {Keys.START.value: trigger_start,
@@ -150,8 +149,7 @@ class RamsTransformer(Transformer):
                     arg_start = indices[Keys.START.value]
                     arg_end = indices[Keys.END.value]
                     if arg_start is None or arg_end is None:
-                        self.log.error("\n")
-                        self.log.error("Failed to parse argument, skipping instance")
+                        self.log.warning("Failed to parse argument, skipping instance")
                         successfully = False
                         break
 

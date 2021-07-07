@@ -2,7 +2,7 @@ import argparse
 import logging
 from tqdm import tqdm
 import json
-from .utils import utilities
+from src.utils import utilities
 
 log = logging.getLogger()
 log.setLevel(logging.INFO)
@@ -20,6 +20,7 @@ events_per_role = {}
 if args.mode == "export":
     for input_path in input_paths.split(":"):
         with open(input_path) as json_file:
+            print()
             for inline_json in tqdm(json_file):
                 instance = json.loads(inline_json)
 
@@ -38,6 +39,7 @@ if args.mode == "export":
 else:
     output = []
     with open(input_paths) as json_file:
+        print()
         for inline_json in tqdm(json_file):
             instance = json.loads(inline_json)
             for key, values in instance.items():

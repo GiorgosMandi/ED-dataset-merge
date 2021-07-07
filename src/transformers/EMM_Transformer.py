@@ -52,7 +52,7 @@ class EmmTransformer(Transformer):
         :param output_path: output path
         :return: None
         """
-        self.log.info("Starts transformation of EMM")
+        self.log.info("Starting the transformation of EMM")
         start_time = time.monotonic()
         i = 0
         if os.path.isdir(self.path):
@@ -79,6 +79,7 @@ class EmmTransformer(Transformer):
         """
         new_instances = []
         edd_jsons = utilities.read_json(json_file)
+        print()
         for instance in tqdm(edd_jsons):
             instance_data = instance['data']
             new_instance_id = self.id_base + "-" + instance_data['filename'] + str(i)
@@ -158,11 +159,10 @@ class EmmTransformer(Transformer):
 
             # log error
             if not (event_type and trigger):
-                self.log.error("")
                 if not event_type:
-                    self.log.error("An empty Event Type was detected")
+                    self.log.warning("An empty Event Type was detected")
                 else:
-                    self.log.error("An empty Trigger was detected")
+                    self.log.warning("An empty Trigger was detected")
                 continue
             events = [{'arguments': arguments, 'trigger': trigger, 'event-type': event_type}]
 
@@ -256,6 +256,5 @@ class EmmTransformer(Transformer):
 
             return {Keys.START.value: start, Keys.END.value: end+1}
         except ValueError as ve:
-            self.log.error("")
-            self.log.error("Not able to find '" + text + "' in the list of words")
+            self.log.warning("Not able to find '" + text + "' in the list of words")
             return {Keys.START.value: None, Keys.END.value: None}

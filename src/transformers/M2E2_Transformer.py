@@ -25,13 +25,14 @@ class M2e2Transformer(Transformer):
         :param output_path: output path
         :return:  None
         """
-        self.log.info("Starts transformation of M2E2")
+        self.log.info("Starting the transformation of M2E2")
         start_time = time.monotonic()
         i = -1
         new_instances = []
 
         # read file and iterate over instances
         m2e2_jsons = utilities.read_json(self.m2e2_path)
+        print()
         for instance in tqdm(m2e2_jsons):
             i += 1
             new_instance_id = self.id_base + str(i) + "-" + instance['sentence_id']
@@ -81,8 +82,7 @@ class M2e2Transformer(Transformer):
                 text_to_entity[text_in_dataset] = new_entity
 
             if not successfully:
-                self.log.error("\n")
-                self.log.error("Failed to parse entity, skipping instance")
+                self.log.warning("Failed to parse entity, skipping instance")
                 continue
 
             # parse events
@@ -113,8 +113,7 @@ class M2e2Transformer(Transformer):
                     trigger_end = indices[Keys.END.value]
                     if trigger_start is None or trigger_end is None:
                         successfully = False
-                        self.log.error("\n")
-                        self.log.error("Failed to parse trigger, skipping instance")
+                        self.log.warning("Failed to parse trigger, skipping instance")
                         continue
                     trigger_text = ' '.join(words[trigger_start: trigger_end])
                     trigger = {

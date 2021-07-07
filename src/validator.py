@@ -2,12 +2,27 @@ from .utils import utilities
 from .conf.Constants import Keys
 import argparse
 import logging
+import sys
+from tqdm import tqdm
+
+log = logging.getLogger("VALIDATOR")
+log.setLevel(logging.DEBUG)
+consoleOUT = logging.StreamHandler(sys.stdout)
+consoleOUT.setLevel(logging.DEBUG)
+formatter = logging.Formatter('\n%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+consoleOUT.setFormatter(formatter)
+consoleOUT.terminator = ""
+log.addHandler(consoleOUT)
+
+log_root = logging.getLogger()
+consoleER = logging.StreamHandler(sys.stdout)
+consoleER.setLevel(logging.ERROR)
+consoleER.setFormatter(formatter)
+consoleER.terminator = ""
+log_root.addHandler(consoleER)
 
 
 class ValidateTransformation:
-    def __init__(self):
-        self.log = logging.getLogger()
-        self.log.setLevel(logging.NOTSET)
 
     def test_pointers(self, text, start, end, words):
         try:
@@ -16,7 +31,9 @@ class ValidateTransformation:
                 return False
             return True
         except IndexError:
-            self.log.error("Index ERROR: Text'" + text + "' not found in the list of words")
+            log.error("Index ERROR: Text'" + text + "' not found in the list of words")
+            log.error("Document contains mistakes")
+            log.error("Validation Failed")
             return False
 
     def validate_parsing(self, parsing_dict):
@@ -75,15 +92,17 @@ class ValidateTransformation:
                                           arg[Keys.START.value],
                                           arg[Keys.END.value],
                                           words))
-        self.log.info("Parsing completed Successfully")
-        self.log.info("Document is correct")
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Give arguments")
-    parser.add_argument('-input', metavar='input', type=str, help='Path to the json to validate', required=True)
+    parser.add_argument('-input', metavar='--input', type=str, help='Path to the json to validate', required=True)
     args = parser.parse_args()
     jsons = utilities.read_jsonlines(args.input)
     validator = ValidateTransformation()
-    for json in jsons:
+    log.info("Starting validation")
+    for json in tqdm(jsons):
         validator.validate_parsing(json)
+    log.info("Validation was completed Successfully")
+    log.info("Document is correct")
+    print()

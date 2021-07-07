@@ -20,6 +20,7 @@ class AceTransformer(Transformer):
         events = set()
         roles = set()
         ace_jsons = utilities.read_json(self.path)
+        print()
         for instance in tqdm(ace_jsons):
             for event in instance['golden-event-mentions']:
                 events.add(event['event_type'].replace(":", "."))
@@ -42,13 +43,14 @@ class AceTransformer(Transformer):
         """
         start_time = time.monotonic()
 
-        self.log.info("Starts transformation of ACE")
+        self.log.info("Starting the transformation of ACE")
         new_instances = []
         i = -1
         ace_jsons = utilities.read_json(self.path)
+
+        print()
         for instance in tqdm(ace_jsons):
             i += 1
-
             new_instance_id = self.id_base + str(i)
 
             try:

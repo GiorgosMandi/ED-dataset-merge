@@ -7,6 +7,7 @@ from stanfordcorenlp import StanfordCoreNLP
 import argparse
 import os
 import logging
+import sys
 
 # TODO:
 #  1. TICK adjust everything based on Keys ENUM
@@ -16,8 +17,22 @@ import logging
 #  5. evaluate script
 #  6. empty event types of EMM
 
-log = logging.getLogger()
-log.setLevel(logging.INFO)
+log = logging.getLogger("TRANSFORMER")
+log.setLevel(logging.DEBUG)
+consoleOUT = logging.StreamHandler(sys.stdout)
+consoleOUT.setLevel(logging.DEBUG)
+formatter = logging.Formatter('\n%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+consoleOUT.setFormatter(formatter)
+consoleOUT.terminator = ""
+log.addHandler(consoleOUT)
+
+log_root = logging.getLogger()
+consoleER = logging.StreamHandler(sys.stdout)
+consoleER.setLevel(logging.ERROR)
+consoleER.setFormatter(formatter)
+consoleER.terminator = ""
+log_root.addHandler(consoleER)
+
 
 parser = argparse.ArgumentParser(description="Give arguments")
 parser.add_argument('-coreNLP', metavar='coreNLP_path', type=str, help='Path to the pretrained coreNLP model', required=True)
@@ -55,15 +70,18 @@ if not args.timeout.isdigit():
     log.error("CoreNLP timeout value is not a number")
     exit(1)
 
-coreNLP = StanfordCoreNLP(args.coreNLP, memory=args.memory + 'g', timeout=int(args.timeout), logging_level="INFO")
-log.info("Initialized Core NLP with " + str(args.memory) + "GB of memory and " + args.timeout + " seconds")
+if disable_mapping:
+    log.info("Disable Mapping event types")
 
 output_path = args.out
 log.info("Results will be stored in '" + output_path + "'")
 
+coreNLP = StanfordCoreNLP(args.coreNLP, memory=args.memory + 'g', timeout=int(args.timeout), logging_level=logging.WARNING)
+log.info("Initialized Core NLP with " + str(args.memory) + "GB of memory and " + args.timeout + " seconds")
+
 if args.rams:
     if os.path.exists(args.rams):
-        log.info("Starts the transformation of RAMS ")
+        log.info("Starting the transformation of RAMS ")
         log.info("RAMS source: '" + args.rams + "'")
         transformer = RamsTransformer(args.rams, coreNLP, disable_mapping)
         transformer.transform(output_path)
@@ -72,7 +90,7 @@ if args.rams:
 
 if args.emm:
     if os.path.exists(args.emm):
-        log.info("Starts the transformation of EMM ")
+        log.info("Starting the transformation of EMM ")
         log.info("EMM source: '" + args.emm + "'")
         transformer = EmmTransformer(args.emm, coreNLP, disable_mapping)
         transformer.transform(output_path)
@@ -81,7 +99,7 @@ if args.emm:
 
 if args.m2e2:
     if os.path.exists(args.m2e2):
-        log.info("Starts the transformation of M2E2 ")
+        log.info("Starting the transformation of M2E2 ")
         log.info("M2E2 source: '" + args.m2e2 + "'")
         transformer = M2e2Transformer(args.m2e2, coreNLP, disable_mapping)
         transformer.transform(output_path)
@@ -90,7 +108,7 @@ if args.m2e2:
 
 if args.ace:
     if os.path.exists(args.ace):
-        log.info("Starts the transformation of pre-processed ACE ")
+        log.info("Starting the transformation of pre-processed ACE ")
         log.info("Ace source: '" + args.ace + "'")
         transformer = AceTransformer(args.ace, coreNLP, disable_mapping)
         transformer.transform(output_path)
@@ -98,3 +116,4 @@ if args.ace:
         log.error("ACE path '" + args.ace + "' does not exist")
 
 log.info("Transformation Completed")
+print()
