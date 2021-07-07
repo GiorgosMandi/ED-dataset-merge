@@ -25,3 +25,4 @@ class Keys(Enum):
     ARGUMENTS = 'arguments'
     TRIGGER = 'trigger'
     EVENT_TYPE = 'event-type'
+    COUNTER = "counter"
