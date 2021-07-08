@@ -1,15 +1,26 @@
 # EventDetectionDataset-Unifier
 
-**EventDetectionDataset-Unifier** is an ETL tool which goal is to transform four well-known Event-Detection datasets into a unified common schema. 
-These four datasets are the following:
+**EventDetectionDataset-Unifier** is mostly an ETL tool which is able to parse and transform four well-known Event-Detection 
+datasets into a unified common schema. These four datasets are the following:
 
   - [RAMS](https://nlp.jhu.edu/rams/)
   - [M2E2](https://github.com/limanling/m2e2)
   - [ACE2005](https://catalog.ldc.upenn.edu/LDC2006T06) after being preprocessed by [ace2005-preprocessing](https://github.com/nlpcl-lab/ace2005-preprocessing)
   - Event Extraction Annotated Data from EMM.
 
-You can download the complete dataset [here](https://drive.google.com/file/d/1PoYHTHuUW_SN2IZqbEMnnRmvF6PTAJMJ/view?usp=sharing). By default, 
-the dataset will contain the Event Types of ACE.
+By default, the dataset will contain the Event Types of ACE. You can download the complete dataset
+[here](https://drive.google.com/file/d/1KxJe_HPTDXM3CDg0k2g6wp6XN1L4nz2G/view?usp=sharing).
+
+Furthermore, we would like to encourage the Event Detection Community to not only use our dataset, but also our schema and our
+methods in order to evaluate their models. To do so, we provide two more components that will facilitate the use of this schema.
+These are:
+
+- A Schema **Validator** which enable users to validate if their results follow the common schema.
+- Am **Evaluator** that takes as input the predictions and the ground truth, asJSON files that follows the common schema, 
+  and evaluates the results in terms of classification and identification. More details in the Evaluation section.
+  
+So we encourage users to use our data, form their predictions based on our schema, use validator to ensure about its correctness
+and then use the Evaluator in order to evaluate their models.
 
 ## Build Instructions
     
@@ -26,7 +37,7 @@ Then, install requirements using:
     pip install -r requirements.txt
 
 
-## Execution
+## Transformation
 
 To execute  *EventDetectionDataset-Unifier*, users must provide some arguments. There are two types of input arguments, execution arguments 
 and dataset related arguments. 
@@ -56,9 +67,27 @@ Users can provide multiple Dataset Arguments in order to transform multiple data
 
 Finally, to execute run something like:
  
-    $ python -m src.main  -coreNLP path/to/coreNLP_directory -out path/to/output_directory -memory 1 -ace data/Ace.json -emm data/EMM/emm.json 
+    $ python -m src.transform  -coreNLP path/to/coreNLP_directory -out path/to/instances.jsonlines -memory 1 -ace data/Ace.json -emm data/EMM/emm.json 
 
-## Schema
+## Validator
+
+**Validator** is a test like component that checks the input JSON if it contains all the necessary fields and no mistakes.
+To use Validator run something like:
+
+    $ python -m src.validate -input path/to/instances.jsonlines
+
+## Evaluator
+**Evaluator** takes as input two JSONs that follow the common schema. A JSON consisting of the predictions of the model, 
+and a JSON containing the true labels (i.e., ground truth). Then evaluate the results in two ways:
+    
+- Classification: prints precision, recall and F1 regarding the correctness of the predicted event types.
+- Identification: prints precision, recall and F1 regarding the correctness of the predicted trigger of the event.
+
+To use Validator run something like:
+    
+    $ python -m src.evaluate -predictions path/to/predictions.jsonlines -groundTruth path/to/groundTruth.jsonlines
+
+## Common Schema
 
 The output will consist of JSONlines of the following schema:
 
