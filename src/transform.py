@@ -9,14 +9,6 @@ import os
 import logging
 import sys
 
-# TODO:
-#  1. TICK adjust everything based on Keys ENUM
-#  2. TICK complete schema validator
-#  3. TICK fix mentioned bugs
-#  4. TICK add argument for mapping
-#  5. evaluate script
-#  6. TICK empty event types of EMM
-
 log = logging.getLogger("TRANSFORMER")
 log.setLevel(logging.DEBUG)
 consoleOUT = logging.StreamHandler(sys.stdout)
