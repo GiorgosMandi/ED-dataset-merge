@@ -82,12 +82,14 @@ Provide `-disableDetailed` to disable detailed checking, this way it will only c
 **Evaluator** takes as input two JSONs that follow the common schema. A JSON consisting of the predictions of the model, 
 and a JSON containing the true labels (i.e., ground truth). Then evaluate the results in two ways:
     
-- Classification: prints precision, recall and F1 regarding the correctness of the predicted event types.
-- Identification: prints precision, recall and F1 regarding the correctness of the predicted trigger of the event.
+- Event Classification: prints precision, recall, F1-Score and Accuracy regarding the correctness of the predicted event types. It also plots the Confusion Matrix.
+- Trigger Identification: prints precision, recall and F1 regarding the correctness of the predicted trigger of the event.
 
 To use Validator run something like:
     
     $ python -m src.evaluate -predictions path/to/predictions.jsonlines -groundTruth path/to/groundTruth.jsonlines
+
+Provide `-cmPath /path/to/cm` to store the confusion matrix.
 
 ## Common Schema
 
