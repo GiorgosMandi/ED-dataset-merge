@@ -35,29 +35,30 @@ class ValidateTransformation:
             log.error("Index ERROR: Text'" + text + "' not found in the list of words")
             return False
 
-    def validate_parsing(self, parsing_dict):
+    def validate_parsing(self, parsing_dict, detailed=True):
         try:
             # test all fields exists
-            assert(Keys.SENTENCES.value in parsing_dict and
-                   Keys.TEXT.value in parsing_dict and
-                   Keys.WORDS.value in parsing_dict and
-                   Keys.LEMMA.value in parsing_dict and
-                   Keys.POS_TAGS.value in parsing_dict and
-                   Keys.NER.value in parsing_dict and
-                   Keys.PENN_TREEBANK.value in parsing_dict and
-                   Keys.DEPENDENCY_PARSING.value in parsing_dict and
-                   Keys.CHUNKS.value in parsing_dict)
+            if detailed:
+                assert(Keys.SENTENCES.value in parsing_dict and
+                       Keys.TEXT.value in parsing_dict and
+                       Keys.WORDS.value in parsing_dict and
+                       Keys.LEMMA.value in parsing_dict and
+                       Keys.POS_TAGS.value in parsing_dict and
+                       Keys.NER.value in parsing_dict and
+                       Keys.PENN_TREEBANK.value in parsing_dict and
+                       Keys.DEPENDENCY_PARSING.value in parsing_dict and
+                       Keys.CHUNKS.value in parsing_dict)
 
-            # test word-centric features
-            assert(len(parsing_dict[Keys.WORDS.value]) == len(parsing_dict[Keys.LEMMA.value]) and
-                   len(parsing_dict[Keys.WORDS.value]) == len(parsing_dict[Keys.POS_TAGS.value]) and
-                   len(parsing_dict[Keys.WORDS.value]) == len(parsing_dict[Keys.NER.value]))
+                # test word-centric features
+                assert(len(parsing_dict[Keys.WORDS.value]) == len(parsing_dict[Keys.LEMMA.value]) and
+                       len(parsing_dict[Keys.WORDS.value]) == len(parsing_dict[Keys.POS_TAGS.value]) and
+                       len(parsing_dict[Keys.WORDS.value]) == len(parsing_dict[Keys.NER.value]))
 
-            # test sentences-centric features
-            assert (parsing_dict[Keys.NO_SENTENCES.value] == len(parsing_dict[Keys.SENTENCES.value]) and
-                    parsing_dict[Keys.NO_SENTENCES.value] == len(parsing_dict[Keys.PENN_TREEBANK.value]) and
-                    parsing_dict[Keys.NO_SENTENCES.value] == len(parsing_dict[Keys.CHUNKS.value]) and
-                    parsing_dict[Keys.NO_SENTENCES.value] == len(parsing_dict[Keys.DEPENDENCY_PARSING.value]))
+                # test sentences-centric features
+                assert (parsing_dict[Keys.NO_SENTENCES.value] == len(parsing_dict[Keys.SENTENCES.value]) and
+                        parsing_dict[Keys.NO_SENTENCES.value] == len(parsing_dict[Keys.PENN_TREEBANK.value]) and
+                        parsing_dict[Keys.NO_SENTENCES.value] == len(parsing_dict[Keys.CHUNKS.value]) and
+                        parsing_dict[Keys.NO_SENTENCES.value] == len(parsing_dict[Keys.DEPENDENCY_PARSING.value]))
 
             # test chunks
             assert(len(parsing_dict[Keys.WORDS.value]) == len([c for ch in parsing_dict[Keys.CHUNKS.value] for c in ch]))
@@ -72,11 +73,12 @@ class ValidateTransformation:
                                            words))
 
             # test entities
-            for entity in parsing_dict[Keys.ENTITIES_MENTIONED.value]:
-                assert(self.test_pointers(entity[Keys.TEXT.value],
-                                          entity[Keys.START.value],
-                                          entity[Keys.END.value],
-                                          words))
+            if detailed:
+                for entity in parsing_dict[Keys.ENTITIES_MENTIONED.value]:
+                    assert(self.test_pointers(entity[Keys.TEXT.value],
+                                              entity[Keys.START.value],
+                                              entity[Keys.END.value],
+                                              words))
 
             # test events
             for event in parsing_dict[Keys.EVENTS_MENTIONED.value]:
@@ -100,8 +102,10 @@ class ValidateTransformation:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Give arguments")
     parser.add_argument('-input', metavar='--input', type=str, help='Path to the json to validate', required=True)
-    args = parser.parse_args()
+    parser.add_argument('-disableDetailed', action='store_true', help='Disable event type mapping matching ')
 
+    args = parser.parse_args()
+    disableDetailed = args.disableDetailed
     if not os.path.exists(args.input):
         log.error("Path '" + args.input + "' does not exist")
         exit(1)
@@ -111,7 +115,7 @@ if __name__ == '__main__':
     log.info("Starting validation")
     successful = True
     for json in tqdm(jsons):
-        successful = successful and validator.validate_parsing(json)
+        successful = successful and validator.validate_parsing(json, not disableDetailed)
         if not successful:
             break
     if successful:

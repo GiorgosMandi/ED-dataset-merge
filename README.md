@@ -76,6 +76,8 @@ To use Validator run something like:
 
     $ python -m src.validate -input path/to/instances.jsonlines
 
+Provide `-disableDetailed` to disable detailed checking, this way it will only check the sentences and the events.
+
 ## Evaluator
 **Evaluator** takes as input two JSONs that follow the common schema. A JSON consisting of the predictions of the model, 
 and a JSON containing the true labels (i.e., ground truth). Then evaluate the results in two ways:
