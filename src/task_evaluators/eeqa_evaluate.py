@@ -1,6 +1,6 @@
-from .utils import utilities
-from .conf.Constants import Keys
-from .conf.Configuration import events
+from src.utils import utilities
+from src.conf.Constants import Keys
+from src.conf.Configuration import events
 import argparse
 import logging
 import sys
@@ -29,6 +29,7 @@ log_root.addHandler(consoleER)
 
 
 class Evaluator:
+
     def __init__(self):
         self.trigger_tp = 0
         self.event_types_tp = 0
@@ -59,16 +60,16 @@ class Evaluator:
                 }
             gold.append(event_type)
 
-        events_pred = pred[Keys.EVENTS_MENTIONED.value]
+        events_pred = pred['event']
         self.total_predicted_events += len(events_pred)
         for event in events_pred:
-            event_type = event[Keys.EVENT_TYPE.value]
+            event_type = event[0][1]
             if event_type in golden_events.keys():
                 if golden_events[event_type][Keys.COUNTER.value] > 0:
                     self.event_types_tp += 1
                     golden_events[event_type][Keys.COUNTER.value] -= 1
 
-                predicted_trigger = event[Keys.TRIGGER.value][Keys.TEXT.value]
+                predicted_trigger = pred['sentence'][event[0][0]]
                 for trigger in golden_events[event_type][Keys.TRIGGER.value]:
                     if utilities.string_similarity(predicted_trigger, trigger) > 0.8:
                         self.trigger_tp += 1
@@ -101,15 +102,13 @@ class Evaluator:
             final_predictions.extend(predictions)
         return final_gold, final_predictions
 
-
-
     def get_classification_score(self):
         precision = 100.0 * self.event_types_tp / self.total_predicted_events if self.total_predicted_events > 0 else 0
         recall = 100.0 * self.event_types_tp / self.total_gold_events if self.total_gold_events > 0 else 0
         f1 = 2 * precision * recall / (precision + recall) if precision + recall > 0 else 0
 
         final_gold, final_predictions = self.get_ordered_results()
-        assert(len(final_gold) == len(final_predictions))
+        assert (len(final_gold) == len(final_predictions))
         acc = 100.0 * accuracy_score(final_gold, final_predictions)
         return precision, recall, f1, acc
 
@@ -122,13 +121,14 @@ class Evaluator:
     def get_confusion_matrix(self, cmPath=None):
         fig, ax = plt.subplots(1, 1, figsize=(25, 25))
         final_gold, final_predictions = self.get_ordered_results()
-        assert(len(final_gold) == len(final_predictions))
+        assert (len(final_gold) == len(final_predictions))
         cfm = confusion_matrix(final_gold, final_predictions, labels=events)
         ConfusionMatrixDisplay(cfm, display_labels=events).plot(values_format='d', ax=ax)
         ax.set_title('Confusion Matrix')
         fig.show()
         if cmPath:
             fig.savefig(cmPath)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Give arguments")
@@ -152,12 +152,11 @@ if __name__ == '__main__':
             exit(1)
 
     evaluator = Evaluator()
-    with open(args.predictions) as predictions_jsonfile,  open(args.groundTruth) as groundTruth_jsonfile:
-        for prediction_json, groundTruth_json in tqdm(zip(predictions_jsonfile, groundTruth_jsonfile)):
-            prediction = json.loads(prediction_json)
-            groundTruth = json.loads(groundTruth_json)
-            evaluator.evaluate(groundTruth, prediction)
-
+    predictions = utilities.read_json(args.predictions)
+    gt = utilities.read_json(args.groundTruth)
+    gt = list(filter(lambda x: len(x['words']) < 500, gt))
+    for prediction, groundTruth in tqdm(zip(predictions, gt)):
+        evaluator.evaluate(groundTruth, prediction)
     precision, recall, f1, acc = evaluator.get_classification_score()
     log.info("Event Classification")
     log.info("Event Type PRECISION:\t" + str(precision))

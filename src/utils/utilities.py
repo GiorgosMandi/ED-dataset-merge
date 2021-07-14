@@ -1,7 +1,7 @@
 import json
 import difflib
 import numpy as np
-
+import os
 
 def most_frequent(List):
     unbios = [e[2:] if len(e) > 2 else e for e in List]
@@ -11,8 +11,22 @@ def most_frequent(List):
 
 
 def read_json(path):
+    filename, file_extension = os.path.splitext(path)
+    if file_extension == ".jsonlines":
+        return read_jsonlines(path)
+    else:
+        return read_simple_json(path)
+
+
+def read_simple_json(path):
     with open(path) as json_file:
         data = json.loads(json_file.read())
+    return data
+
+
+def read_jsonlines(path):
+    with open(path) as json_file:
+        data = [json.loads(inline_json) for inline_json in json_file]
     return data
 
 
@@ -27,12 +41,6 @@ def write_json(mapping, path):
     with open(path, 'a+') as json_file:
         json.dump(mapping, json_file)
         json_file.write('\n')
-
-
-def read_jsonlines(path):
-    with open(path) as json_file:
-        data = [json.loads(inline_json) for inline_json in json_file]
-    return data
 
 
 def write_iterable(path, iterable):

@@ -19,7 +19,7 @@ class AceTransformer(Transformer):
     def export_types(self, roles_path, event_paths):
         events = set()
         roles = set()
-        ace_jsons = utilities.read_json(self.path)
+        ace_jsons = utilities.read_simple_json(self.path)
         print()
         for instance in tqdm(ace_jsons):
             for event in instance['golden-event-mentions']:
@@ -46,7 +46,7 @@ class AceTransformer(Transformer):
         self.log.info("Starting the transformation of ACE")
         new_instances = []
         i = -1
-        ace_jsons = utilities.read_json(self.path)
+        ace_jsons = utilities.read_simple_json(self.path)
 
         print()
         for instance in tqdm(ace_jsons):

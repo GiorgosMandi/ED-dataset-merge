@@ -28,7 +28,7 @@ class EmmTransformer(Transformer):
 
         for file in os.listdir(self.path):
             json_file = self.path + file
-            edd_jsons = utilities.read_json(json_file)
+            edd_jsons = utilities.read_simple_json(json_file)
             for instance in edd_jsons:
                 instance_result = instance['completions'][0]['result']
 
@@ -78,7 +78,7 @@ class EmmTransformer(Transformer):
         :return:  None
         """
         new_instances = []
-        edd_jsons = utilities.read_json(json_file)
+        edd_jsons = utilities.read_simple_json(json_file)
         print()
         for instance in tqdm(edd_jsons):
             instance_data = instance['data']

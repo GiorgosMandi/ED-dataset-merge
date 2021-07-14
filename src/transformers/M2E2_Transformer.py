@@ -31,7 +31,7 @@ class M2e2Transformer(Transformer):
         new_instances = []
 
         # read file and iterate over instances
-        m2e2_jsons = utilities.read_json(self.m2e2_path)
+        m2e2_jsons = utilities.read_simple_json(self.m2e2_path)
         print()
         for instance in tqdm(m2e2_jsons):
             i += 1

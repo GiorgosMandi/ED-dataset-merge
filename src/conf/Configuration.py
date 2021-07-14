@@ -260,7 +260,9 @@ events_mapping = {
     "personnel.endposition.quitretire": "PERSONNEL.END-POSITION",
     "life.die.n/a": "LIFE.DIE",
     "life.die.nonviolentdeath": "LIFE.DIE",
-    "disaster.accidentcrash.accidentcrash": "DISASTER"
+    "disaster.accidentcrash.accidentcrash": "DISASTER",
+
+    "NONE": "NONE"
 
 }
 

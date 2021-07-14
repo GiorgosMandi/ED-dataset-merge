@@ -1,6 +1,6 @@
-from .utils import utilities
-from .conf.Constants import Keys
-from .conf.Configuration import events
+from src.utils import utilities
+from src.conf.Constants import Keys
+from src.conf.Configuration import events
 import argparse
 import logging
 import sys
@@ -35,18 +35,16 @@ class Evaluator:
         self.total_gold_events = 0
         self.total_predicted_events = 0
         self.gold_dict = {}
+        self.gold_event_trigger = {}
         self.predictions_dict = {}
 
-    def evaluate(self, gt, pred):
+    def set_GT(self, gt):
         events_gt = gt[Keys.EVENTS_MENTIONED.value]
         self.total_gold_events += len(events_gt)
-
         # from type to trigger and number of occurrences
         golden_events = {}
-
         # list containing predictions/golden event types of the current instance
         gold = []
-        predictions = []
         for event in events_gt:
             event_type = event[Keys.EVENT_TYPE.value]
             if event_type in golden_events.keys():
@@ -59,29 +57,37 @@ class Evaluator:
                 }
             gold.append(event_type)
 
-        events_pred = pred[Keys.EVENTS_MENTIONED.value]
+        # store the results of this instance
+        key = groundTruth_json[Keys.ID.value].replace("/", "") + ".json"
+        self.gold_dict[key] = gold
+        self.gold_event_trigger[key] = golden_events
+
+    def set_predictions(self, pred):
+        predictions = []
+        key = pred['doc_id']
+        events_pred = pred['graph']['triggers']
         self.total_predicted_events += len(events_pred)
         for event in events_pred:
-            event_type = event[Keys.EVENT_TYPE.value]
-            if event_type in golden_events.keys():
-                if golden_events[event_type][Keys.COUNTER.value] > 0:
-                    self.event_types_tp += 1
-                    golden_events[event_type][Keys.COUNTER.value] -= 1
+            event_type = event[2]
+            event_type = event_type.replace(":", ".").upper()
 
-                predicted_trigger = event[Keys.TRIGGER.value][Keys.TEXT.value]
-                for trigger in golden_events[event_type][Keys.TRIGGER.value]:
+            if event_type in self.gold_event_trigger[key].keys():
+                if self.gold_event_trigger[key][event_type][Keys.COUNTER.value] > 0:
+                    self.event_types_tp += 1
+                    self.gold_event_trigger[key][event_type][Keys.COUNTER.value] -= 1
+
+                predicted_trigger = ' '.join(pred['tokens'][event[0]:event[1]])
+                for trigger in self.gold_event_trigger[key][event_type][Keys.TRIGGER.value]:
                     if utilities.string_similarity(predicted_trigger, trigger) > 0.8:
                         self.trigger_tp += 1
             predictions.append(event_type)
 
-        # store the results of this instance
-        self.gold_dict[gt[Keys.ID.value]] = gold
-        self.predictions_dict[gt[Keys.ID.value]] = predictions
+        self.predictions_dict[key] = predictions
 
     def get_ordered_results(self):
         final_gold = []
         final_predictions = []
-        for key in self.gold_dict.keys():
+        for key in self.predictions_dict.keys():
             gold = self.gold_dict[key]
             predictions = self.predictions_dict[key]
 
@@ -152,12 +158,23 @@ if __name__ == '__main__':
             exit(1)
 
     evaluator = Evaluator()
-    with open(args.predictions) as predictions_jsonfile,  open(args.groundTruth) as groundTruth_jsonfile:
-        for prediction_json, groundTruth_json in tqdm(zip(predictions_jsonfile, groundTruth_jsonfile)):
-            prediction = json.loads(prediction_json)
-            groundTruth = json.loads(groundTruth_json)
-            evaluator.evaluate(groundTruth, prediction)
+    gt_jsons = {}
+    with open(args.groundTruth) as groundTruth_jsonfile:
+        for groundTruth_json in groundTruth_jsonfile:
+            groundTruth_json = json.loads(groundTruth_json)
+            evaluator.set_GT(groundTruth_json)
 
+    predictions_jsons = []
+    if os.path.isdir(args.predictions):
+        for file in os.listdir(args.predictions):
+            json_file = os.path.join(args.predictions, file)
+            with open(json_file) as prediction_jsonfile:
+                for prediction_json in prediction_jsonfile:
+                    prediction_json = json.loads(prediction_json)
+                    if prediction_json['doc_id'] in evaluator.gold_event_trigger.keys():
+                        evaluator.set_predictions(prediction_json)
+
+    print()
     precision, recall, f1, acc = evaluator.get_classification_score()
     log.info("Event Classification")
     log.info("Event Type PRECISION:\t" + str(precision))
