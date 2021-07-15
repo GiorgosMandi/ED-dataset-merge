@@ -82,7 +82,10 @@ class Evaluator:
                         self.trigger_tp += 1
             predictions.append(event_type)
 
-        self.predictions_dict[key] = predictions
+        if key in self.predictions_dict.keys():
+            self.predictions_dict[key].extend(predictions)
+        else:
+            self.predictions_dict[key] = predictions
 
     def get_ordered_results(self):
         final_gold = []
